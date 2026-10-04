@@ -733,95 +733,50 @@ export default function DashboardPage() {
 
 
           {/* Son Eklenen Belgeler (Recent Documents) */}
-
           {recentDocuments.length > 0 && (
-
             <div className="mt-16 w-full max-w-4xl animate-in slide-in-from-bottom-4 fade-in duration-700">
-
-              <h3 className="text-lg font-medium text-slate-300 mb-6 flex items-center gap-2">
-
-                <span className="text-amber-500">📄</span> Son Analiz Edilen Belgeleriniz
-
+              <h3 className="text-lg font-medium text-[var(--ota-text)] mb-6 flex items-center gap-2">
+                <span className="text-[var(--ota-gold)]">📄</span> Son Analiz Edilen Belgeleriniz
               </h3>
-
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
                 {recentDocuments.map((doc) => (
-
                   <div 
-
                     key={doc.id}
-
-                    className="glass-panel p-5 rounded-xl cursor-pointer hover:border-amber-500/30 transition-all hover:bg-white/5 flex flex-col gap-2 group"
-
+                    className="glass-panel p-5 rounded-xl cursor-pointer hover:border-[var(--ota-border-hover)] transition-all hover:bg-[var(--ota-bg-2)] flex flex-col gap-2 group"
                     onClick={() => handleLoadRecent(doc)}
-
                   >
-
                     <div className="flex items-start justify-between">
-
-                      <span className="text-xl group-hover:scale-110 transition-transform origin-bottom-left">📄</span>
-
+                      <span className="text-xl group-hover:scale-110 transition-transform origin-bottom-left text-[var(--ota-text)]">📄</span>
                       <div className="flex items-center gap-2">
-
                         <button 
-
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(doc.id); }}
-
                           title="Favorilere Ekle"
-
-                          className={`p-1.5 rounded-md transition-colors ${doc.is_favorite ? 'text-amber-400 bg-amber-400/10' : 'text-slate-400 hover:text-amber-400 hover:bg-white/10'}`}
-
+                          className={`p-1.5 rounded-md transition-colors ${doc.is_favorite ? 'text-[var(--ota-gold)] bg-[var(--ota-gold-dim)]' : 'text-[var(--ota-text-muted)] hover:text-[var(--ota-gold)] hover:bg-[var(--ota-gold-dim)]'}`}
                         >
-
                           {doc.is_favorite ? '★' : '☆'}
-
                         </button>
-
                         <button 
-
                           onClick={(e) => { e.stopPropagation(); toggleArchive(doc.id); }}
-
                           title="Arşive Kaldır"
-
-                          className="p-1.5 rounded-md text-slate-400 hover:text-red-400 hover:bg-white/10 transition-colors"
-
+                          className="p-1.5 rounded-md text-[var(--ota-text-muted)] hover:text-[var(--ota-ruby)] hover:bg-[var(--ota-ruby)]/10 transition-colors"
                         >
-
                           📦
-
                         </button>
-
-                        <span className="text-xs px-2 py-1 bg-amber-500/10 text-amber-400 rounded-md ml-2">
-
+                        <span className="text-xs px-2 py-1 bg-[var(--ota-gold-dim)] text-[var(--ota-gold)] rounded-md ml-2 border border-[var(--ota-border)]">
                           {new Date(doc.created_at).toLocaleDateString("tr-TR")}
-
                         </span>
-
                       </div>
-
                     </div>
-
-                    <h4 className="font-semibold text-slate-100 truncate mt-2 group-hover:text-amber-400 transition-colors">
-
+                    <h4 className="font-semibold text-[var(--ota-text)] truncate mt-2 group-hover:text-[var(--ota-gold)] transition-colors">
                       {doc.title}
-
                     </h4>
-
-                    <p className="text-xs text-slate-400 truncate">
-
+                    <p className="text-xs text-[var(--ota-text-muted)] truncate">
                       {doc.original_filename}
-
                     </p>
-
                   </div>
-
                 ))}
-
               </div>
-
             </div>
-
           )}
 
 

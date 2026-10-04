@@ -7,62 +7,83 @@
 
 /* --- Design Tokens --- */
 :root {
-  /* === OTA Premium Dark Navy+Gold Palette === */
-  --ota-bg-1: #040d14; /* Deeper navy for ambient background */
-  --ota-bg-2: #061521; /* Slightly lighter navy */
-  --ota-card: rgba(10, 32, 42, 0.45); /* Glassmorphism base */
-  --ota-elevated: rgba(14, 39, 49, 0.6);
-  --ota-border: rgba(215, 165, 72, 0.15); /* Softer gold borders */
-  --ota-border-hover: rgba(215, 165, 72, 0.4);
-  --ota-gold: #D7A548;
-  --ota-gold-light: #EDC46F;
-  --ota-gold-dim: rgba(215, 165, 72, 0.08);
-  --ota-text: #F8F9FA;
-  --ota-text-2: #B0C4DE;
-  --ota-text-muted: #64748B;
-  --ota-teal-active: rgba(30, 107, 123, 0.4);
-  --ota-sidebar-w: 260px; /* Slightly wider */
+  /* === Ottoman Imperial Design System === */
+  /* Core Palette */
+  --ota-obsidian: #0A0A0C;
+  --ota-deep-emerald: #06221C;
+  --ota-royal-emerald: #0B3328;
+  --ota-imperial-gold: #D4AF37;
+  --ota-light-gold: #FFFDD0;
+  --ota-iznik-turquoise: #19B5A5;
+  --ota-ruby: #8F2332;
+  --ota-bronze: #8C6A2D;
+  
+  /* Backgrounds */
+  --ota-bg-1: #0A0A0C;
+  --ota-bg-2: #0D1510;
+  --ota-card: rgba(11, 51, 40, 0.35);
+  --ota-elevated: rgba(6, 34, 28, 0.55);
+  
+  /* Borders */
+  --ota-border: rgba(212, 175, 55, 0.12);
+  --ota-border-hover: rgba(212, 175, 55, 0.35);
+  
+  /* Gold */
+  --ota-gold: #D4AF37;
+  --ota-gold-light: #E8D48B;
+  --ota-gold-dim: rgba(212, 175, 55, 0.08);
+  
+  /* Text */
+  --ota-text: #F0EDE5;
+  --ota-text-2: #A8B5A0;
+  --ota-text-muted: #5A6B5E;
+  
+  /* Active States */
+  --ota-teal-active: rgba(25, 181, 165, 0.15);
+  
+  /* Dimensions */
+  --ota-sidebar-w: 260px;
   --ota-header-h: 72px;
-
-  /* === Legacy aliases (used by existing CSS) === */
-  --bg-primary: #040d14;
-  --bg-secondary: #061521;
-  --bg-tertiary: rgba(10, 32, 42, 0.45);
-  --bg-sidebar: rgba(4, 13, 20, 0.85); /* Glass sidebar */
-  --surface: rgba(10, 32, 42, 0.5);
-  --surface-hover: rgba(14, 39, 49, 0.7);
-  --surface-active: rgba(18, 48, 64, 0.8);
-  --gold-50: #fdf8ed;
-  --gold-100: #f9edcb;
-  --gold-200: #f3d992;
-  --gold-300: #EDC46F;
-  --gold-400: #D7A548;
-  --gold-500: #C4922F;
-  --gold-600: #a57a22;
-  --gold-700: #7d6118;
-  --gold-800: #634c14;
-  --gold-900: #4a3810;
-  --text-primary: #F8F9FA;
-  --text-secondary: #B0C4DE;
-  --text-muted: #64748B;
-  --text-accent: #D7A548;
-  --border: rgba(215, 165, 72, 0.15);
-  --border-subtle: rgba(215, 165, 72, 0.08);
-  --border-accent: rgba(215, 165, 72, 0.3);
+  
+  /* Legacy aliases */
+  --bg-primary: #0A0A0C;
+  --bg-secondary: #0D1510;
+  --bg-tertiary: rgba(11, 51, 40, 0.35);
+  --bg-sidebar: rgba(10, 10, 12, 0.92);
+  --surface: rgba(11, 51, 40, 0.4);
+  --surface-hover: rgba(6, 34, 28, 0.6);
+  --surface-active: rgba(25, 181, 165, 0.15);
+  --gold-50: #FFFDD0;
+  --gold-100: #F5E6B8;
+  --gold-200: #E8D48B;
+  --gold-300: #DCC25E;
+  --gold-400: #D4AF37;
+  --gold-500: #C4A032;
+  --gold-600: #8C6A2D;
+  --gold-700: #6B5222;
+  --gold-800: #4A3918;
+  --gold-900: #2A200E;
+  --text-primary: #F0EDE5;
+  --text-secondary: #A8B5A0;
+  --text-muted: #5A6B5E;
+  --text-accent: #D4AF37;
+  --border: rgba(212, 175, 55, 0.12);
+  --border-subtle: rgba(212, 175, 55, 0.06);
+  --border-accent: rgba(212, 175, 55, 0.25);
   --success: #10B981;
   --success-bg: rgba(16, 185, 129, 0.1);
   --warning: #F59E0B;
   --warning-bg: rgba(245, 158, 11, 0.1);
   --error: #EF4444;
   --error-bg: rgba(239, 68, 68, 0.1);
-  --info: #3B82F6;
-  --info-bg: rgba(59, 130, 246, 0.1);
+  --info: #19B5A5;
+  --info-bg: rgba(25, 181, 165, 0.1);
   
-  /* Premium Glass Variables */
-  --glass-bg: rgba(6, 21, 33, 0.5);
-  --glass-border: rgba(215, 165, 72, 0.15);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  --glass-blur: blur(12px);
+  /* Premium Glass */
+  --glass-bg: rgba(10, 10, 12, 0.65);
+  --glass-border: rgba(212, 175, 55, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  --glass-blur: blur(16px);
   
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -70,17 +91,17 @@
   --sidebar-width: 260px;
   --sidebar-collapsed: 72px;
   --header-height: 72px;
-  --accent-gold: #D7A548;
-  --text-dim: #64748B;
+  --accent-gold: #D4AF37;
+  --text-dim: #5A6B5E;
 }
 
 /* Glassmorphism Utilities */
 .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  background: rgba(10, 10, 12, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 /* --- Tailwind Theme --- */
@@ -98,13 +119,25 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: var(--bg-primary);
+  background: linear-gradient(135deg, #0A0A0C 0%, #06221C 50%, #0A0A0C 100%);
   color: var(--text-primary);
   font-family: var(--font-sans, 'Inter', system-ui, -apple-system, sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   margin: 0;
   min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(11, 51, 40, 0.3), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(143, 35, 50, 0.06), transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.03), transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* =====================================================

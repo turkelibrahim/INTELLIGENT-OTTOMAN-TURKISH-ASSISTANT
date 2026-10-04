@@ -71,8 +71,8 @@ export default function ChatWidget({ documentId }: { documentId: number | null }
       {/* Floating Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-slate-900 transition-all duration-300 shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:scale-110 ${isOpen ? 'bg-slate-800 text-amber-500 border border-amber-500/50' : 'bg-gradient-to-r from-amber-500 to-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]'}`}
-        aria-label="Belge Asistanıı"
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center text-[var(--ota-obsidian)] transition-all duration-300 shadow-[0_0_20px_var(--ota-imperial-gold)] hover:scale-110 ${isOpen ? 'bg-[var(--ota-deep-emerald)] text-[var(--ota-imperial-gold)] border border-[var(--ota-imperial-gold)]' : 'bg-gradient-to-r from-[var(--ota-imperial-gold)] to-[var(--ota-gold-light)] hover:shadow-[0_0_25px_var(--ota-imperial-gold)]'}`}
+        aria-label="Belge Asistanı"
       >
         {isOpen ? (
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -88,26 +88,26 @@ export default function ChatWidget({ documentId }: { documentId: number | null }
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[550px] max-h-[75vh] glass-panel border border-amber-500/20 rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div className="fixed bottom-24 right-6 z-50 w-[380px] h-[550px] max-h-[75vh] glass-panel rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 fade-in duration-300">
           
-          <div className="bg-slate-900/80 px-5 py-4 border-b border-amber-500/20 flex items-center justify-between">
+          <div className="bg-[var(--ota-bg-2)]/80 px-5 py-4 border-b border-[var(--ota-border)] flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/30">
+              <div className="w-8 h-8 rounded-full bg-[var(--ota-teal-active)] flex items-center justify-center border border-[var(--ota-border-hover)]">
                 <span className="text-lg">🤖</span>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-100 text-sm">Belge Asistanıı</h3>
-                <p className="text-[10px] text-amber-400 font-medium tracking-wide uppercase">Yapay Zeka Destekli</p>
+                <h3 className="font-semibold text-[var(--ota-text)] text-sm">Belge Asistanı</h3>
+                <p className="text-[10px] text-[var(--ota-gold)] font-medium tracking-wide uppercase">Yapay Zeka Destekli</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-200 transition-colors">
+            <button onClick={() => setIsOpen(false)} className="text-[var(--ota-text-muted)] hover:text-[var(--ota-text)] transition-colors">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-slate-950/50 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 bg-[var(--ota-bg-1)]/50 custom-scrollbar">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs p-2 rounded-lg text-center">
+              <div className="bg-[var(--ota-ruby)]/10 border border-[var(--ota-ruby)]/20 text-[var(--ota-ruby)] text-xs p-2 rounded-lg text-center">
                 ⚠️ {error}
               </div>
             )}
@@ -120,46 +120,46 @@ export default function ChatWidget({ documentId }: { documentId: number | null }
                 <div 
                   className={`px-4 py-2.5 rounded-2xl ${
                     msg.role === 'user' 
-                      ? 'bg-amber-500 text-slate-900 rounded-tr-sm' 
-                      : 'glass-card border border-amber-500/10 text-slate-200 rounded-tl-sm'
+                      ? 'bg-[var(--ota-imperial-gold)] text-[var(--ota-obsidian)] rounded-tr-sm' 
+                      : 'glass-card border border-[var(--ota-border)] text-[var(--ota-text)] rounded-tl-sm'
                   }`}
                 >
                   <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
                 </div>
-                <span className={`text-[10px] text-slate-500 mt-1 ${msg.role === 'user' ? 'text-right mr-1' : 'ml-1'}`}>
-                  {msg.role === 'user' ? 'Siz' : 'Asistanı'}
+                <span className={`text-[10px] text-[var(--ota-text-muted)] mt-1 ${msg.role === 'user' ? 'text-right mr-1' : 'ml-1'}`}>
+                  {msg.role === 'user' ? 'Siz' : 'Asistan'}
                 </span>
               </div>
             ))}
             
             {loading && (
-              <div className="self-start glass-card border border-amber-500/10 px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
+              <div className="self-start glass-card border border-[var(--ota-border)] px-4 py-3 rounded-2xl rounded-tl-sm flex items-center gap-2">
                 <div className="flex gap-1">
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce"></span>
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                  <span className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
+                  <span className="w-1.5 h-1.5 bg-[var(--ota-imperial-gold)] rounded-full animate-bounce"></span>
+                  <span className="w-1.5 h-1.5 bg-[var(--ota-imperial-gold)] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
+                  <span className="w-1.5 h-1.5 bg-[var(--ota-imperial-gold)] rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="p-4 bg-slate-900/80 border-t border-slate-800">
+          <div className="p-4 bg-[var(--ota-bg-2)]/80 border-t border-[var(--ota-border)]">
             <form onSubmit={sendMessage} className="flex items-center gap-2">
               <input 
                 type="text" 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Bir soru sorun..." 
-                className="flex-1 bg-slate-950 border border-slate-700 rounded-full px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 placeholder-slate-500 transition-all"
+                className="flex-1 bg-[var(--ota-bg-1)] border border-[var(--ota-border)] rounded-full px-4 py-2.5 text-sm text-[var(--ota-text)] focus:outline-none focus:border-[var(--ota-gold)] focus:ring-1 focus:ring-[var(--ota-gold)]/50 placeholder-[var(--ota-text-muted)] transition-all"
                 disabled={loading || !sessionId}
               />
               <button 
                 type="submit" 
                 className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                   !input.trim() || loading || !sessionId 
-                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
-                    : 'bg-amber-500 text-slate-900 hover:bg-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
+                    ? 'bg-[var(--ota-card)] text-[var(--ota-text-muted)] cursor-not-allowed' 
+                    : 'bg-[var(--ota-imperial-gold)] text-[var(--ota-obsidian)] hover:bg-[var(--ota-gold-light)] shadow-[0_0_10px_var(--ota-imperial-gold)]'
                 }`}
                 disabled={loading || !input.trim() || !sessionId}
               >
