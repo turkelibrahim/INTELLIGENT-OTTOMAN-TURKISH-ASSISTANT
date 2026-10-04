@@ -1,0 +1,12 @@
+{
+  "name": "annotation-e2e-tests",
+  "version": "1.0.0",
+  "description": "E2E tests for Annotation Pipeline",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@playwright/test": "latest"
+  }
+}

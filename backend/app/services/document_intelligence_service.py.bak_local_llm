@@ -1,0 +1,95 @@
+import json
+import logging
+from typing import Dict, Any
+
+logger = logging.getLogger(__name__)
+
+class DocIntelligenceEngine:
+    """
+    Document Intelligence Service
+    Responsible for understanding simplified Ottoman text.
+    Provides Modern Turkish translation, summarization, and Entity Extraction (NER).
+    """
+    
+    def __init__(self, use_mock=False):
+        self.use_mock = use_mock
+        
+        # PROMPTS
+        self.translate_prompt = (
+            "Sen uzman bir tarihçi ve dilbilimcisin. "
+            "Görev: Sana verilen Latin harfli Osmanlıca/Eski Türkçe metnin tarihi bağlamını koruyarak, "
+            "sadece arkaik ve eski kelimeleri günümüz modern Türkçesine çevir. "
+            "Metnin ana kurgusunu bozma, metne yorum katma ve sadece çeviri çıktısı ver.\n\n"
+            "Metin: {text}\n"
+            "Günümüz Türkçesi:"
+        )
+
+        self.summarize_prompt = (
+            "Sen uzman bir tarihçi ve arşivcisin. "
+            "Görev: Sana verilen tarihi metnin ana konusunu ve bahsedilen olayı "
+            "en fazla 3 cümle ile, tarafsız, net ve anlaşılır bir şekilde özetle. "
+            "Yorum yapma.\n\n"
+            "Metin: {text}\n"
+            "Özet:"
+        )
+        
+        self.ner_prompt = (
+            "Sen uzman bir NLP (Doğal Dil İşleme) asistanısın. "
+            "Görev: Sana verilen tarihi metindeki Varlıkları (Entities) çıkar ve kategorize et. "
+            "Kategoriler: Kişi (PERSON), Yer (LOCATION), Tarih (DATE) ve Kurum (ORGANIZATION). "
+            "Eğer bir kategoriye ait varlık bulamazsan, o kategorinin karşılığına boş liste [] dön. "
+            "SADECE ve SADECE geçerli bir JSON formatında çıktı ver, başka hiçbir açıklama veya markdown ekleme.\n"
+            "Örnek Çıktı Formatı:\n"
+            "{{\n"
+            "  \"PERSON\": [\"Ertuğrul Gazi\", \"Ak Timur\"],\n"
+            "  \"LOCATION\": [\"Söğüt\", \"Kayı Obası\"],\n"
+            "  \"DATE\": [\"1299\"],\n"
+            "  \"ORGANIZATION\": [\"Osmanlı Beyliği\"]\n"
+            "}}\n\n"
+            "Metin: {text}\n"
+            "JSON Çıktısı:"
+        )
+
+    def _call_llm(self, prompt: str, text: str, mode: str) -> str:
+        """Internal mockable LLM caller"""
+        if self.use_mock:
+            return self._mock_response(text, mode)
+            
+        # TODO: Implement OpenAI/HF client
+        raise NotImplementedError("LLM integration pending API keys.")
+
+    def _mock_response(self, text: str, mode: str) -> str:
+        """Simulates LLM outputs for testing"""
+        if mode == "translate":
+            return "Kardeşinin oğlu Ak Timur'u görevlendirdi; emrinde çok cesur askerler vardı, ona yetenekli yoldaşlar tahsis etti ve dağ tarafından bir..."
+        elif mode == "summarize":
+            return "Metinde, bir askeri sevkiyat veya görevlendirme anlatılmaktadır. Ak Timur komutasındaki cesur ve yetenekli askerlerin dağlık bir bölgeye doğru harekete geçirildiği belirtilmektedir."
+        elif mode == "ner":
+            return '{\n  "PERSON": ["Ak Timur"],\n  "LOCATION": [],\n  "DATE": [],\n  "ORGANIZATION": []\n}'
+        return ""
+
+    def translate_to_modern_turkish(self, simple_latin_text: str) -> str:
+        formatted_prompt = self.translate_prompt.format(text=simple_latin_text)
+        return self._call_llm(formatted_prompt, simple_latin_text, mode="translate")
+
+    def summarize_document(self, full_text: str) -> str:
+        formatted_prompt = self.summarize_prompt.format(text=full_text)
+        return self._call_llm(formatted_prompt, full_text, mode="summarize")
+
+    def extract_entities(self, full_text: str) -> Dict[str, Any]:
+        formatted_prompt = self.ner_prompt.format(text=full_text)
+        raw_json_str = self._call_llm(formatted_prompt, full_text, mode="ner")
+        
+        try:
+            # Parse the string into an actual JSON dictionary
+            parsed_json = json.loads(raw_json_str)
+            return parsed_json
+        except json.JSONDecodeError:
+            logger.error("LLM did not return a valid JSON format for NER.")
+            # Fallback empty structure
+            return {
+                "PERSON": [],
+                "LOCATION": [],
+                "DATE": [],
+                "ORGANIZATION": []
+            }

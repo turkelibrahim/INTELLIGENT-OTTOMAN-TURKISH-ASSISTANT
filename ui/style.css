@@ -1,0 +1,204 @@
+:root {
+    --bg-main: #121212;
+    --bg-panel: #1e1e1e;
+    --bg-hover: #2c2c2c;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent: #bb86fc;
+    --danger: #cf6679;
+    --warning: #f2c94c;
+    --success: #03dac6;
+    --border: #333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.studio-header {
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--accent);
+}
+
+.btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn.primary {
+    background-color: var(--accent);
+    color: #000;
+    font-weight: bold;
+}
+
+.btn.primary:hover {
+    background-color: #9965f4;
+}
+
+/* Container */
+.studio-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+}
+
+.panel:last-child {
+    border-right: none;
+}
+
+.panel-header {
+    padding: 15px;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    background-color: var(--bg-hover);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Canvas Area */
+.canvas-container {
+    flex: 1;
+    overflow: auto;
+    background-color: #000;
+    position: relative;
+    cursor: grab;
+}
+
+.canvas-container:active {
+    cursor: grabbing;
+}
+
+#doc-canvas {
+    transform-origin: top left;
+}
+
+.zoom-controls button {
+    background: var(--bg-hover);
+    border: none;
+    color: var(--text-primary);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+/* Editor Area */
+.editor-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: var(--bg-main);
+}
+
+.line-box {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.line-box.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(187, 134, 252, 0.2);
+}
+
+.line-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    direction: ltr; /* keep icons ltr */
+}
+
+.line-actions button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1rem;
+}
+.line-actions button:hover {
+    color: var(--accent);
+}
+
+.ocr-input {
+    width: 100%;
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 1.2rem; /* bigger for Ottoman script */
+    font-family: Arial, "Times New Roman", serif;
+    resize: vertical;
+    min-height: 50px;
+}
+
+.ocr-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Confidence indicator */
+.conf-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.conf-high { background-color: var(--success); }
+.conf-med { background-color: var(--warning); }
+.conf-low { background-color: var(--danger); }

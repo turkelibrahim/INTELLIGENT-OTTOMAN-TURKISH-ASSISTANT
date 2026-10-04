@@ -1,0 +1,11 @@
+﻿source_id,license,eligible_gold_train,eligible_commercial_train,requires_attribution,requires_sharealike,human_rights_review
+openiti_ottoman_lines,CC BY-NC-SA,yes,no,yes,yes,no
+openiti_makhzan_full,CC BY-NC-SA,yes,no,yes,yes,no
+ottoman_place_names,CC BY-NC 4.0,support_only,no,yes,no,no
+otc_corpus,CC BY-NC 4.0,support_only,no,yes,no,no
+histr,CC BY-NC 4.0,support_only,no,yes,no,no
+ota_boun,CC BY-NC 4.0,support_only,no,yes,no,no
+dudu,CC BY-SA 4.0,support_only,conditional,yes,yes,no
+anadolu_ocr_optional,other,no,no,unknown,unknown,yes
+evliya_ocr_optional,other,no,no,unknown,unknown,yes
+synthetic_bootstrap,generated,yes_synthetic_only,project_decision,no,no,no

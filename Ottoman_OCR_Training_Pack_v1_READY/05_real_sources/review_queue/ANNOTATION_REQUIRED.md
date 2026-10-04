@@ -1,0 +1,1 @@
+Bu klasöre yalnız kullanım hakkı bulunan gerçek sayfaları koyun. Her sayfa için satır segmentasyonu ve insan doğrulamalı Arap harfli transkripsiyon gerekir. Rika/Divani/Siyakat gibi az temsil edilen stiller burada önceliklidir.

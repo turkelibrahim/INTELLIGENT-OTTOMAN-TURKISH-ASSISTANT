@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  backend-api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ota-backend-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/ottoman_assistant.db:/app/ottoman_assistant.db
+      - ./backend/exports:/app/exports
+      - ./backend/static:/app/static
+    environment:
+      - DATABASE_URL=sqlite:///./ottoman_assistant.db
+      - ENVIRONMENT=production
+    restart: unless-stopped
+
+  backend-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ota-backend-worker
+    command: python worker.py
+    volumes:
+      - ./backend/ottoman_assistant.db:/app/ottoman_assistant.db
+      - ./backend/exports:/app/exports
+      - ./backend/static:/app/static
+    environment:
+      - DATABASE_URL=sqlite:///./ottoman_assistant.db
+      - ENVIRONMENT=production
+    depends_on:
+      - backend-api
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ota-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend-api
+    restart: unless-stopped

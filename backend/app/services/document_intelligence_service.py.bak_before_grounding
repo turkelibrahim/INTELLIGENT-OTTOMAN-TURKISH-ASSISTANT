@@ -1,0 +1,241 @@
+﻿import json
+import logging
+from typing import Dict, Any, Optional
+
+from app.core.config import settings
+from app.services.ai.ollama_provider import OllamaProvider
+
+logger = logging.getLogger(__name__)
+
+
+class DocIntelligenceEngine:
+    """
+    Document Intelligence Service.
+
+    Provides:
+    - Modern Turkish conversion
+    - Summarization
+    - Named Entity Recognition
+
+    Local-first LLM:
+    Ollama + Qwen
+    """
+
+    def __init__(self, use_mock: bool = False, provider: Optional[OllamaProvider] = None):
+        self.use_mock = use_mock
+        self.provider = provider
+
+        if not self.use_mock and self.provider is None:
+            provider_name = settings.LLM_PROVIDER.strip().lower()
+
+            if provider_name != "ollama":
+                raise RuntimeError(
+                    f"Unsupported active LLM provider: {settings.LLM_PROVIDER}. "
+                    "Local-first mode currently requires LLM_PROVIDER=ollama."
+                )
+
+            self.provider = OllamaProvider(
+                model=settings.LLM_MODEL,
+                base_url=settings.LLM_BASE_URL or "http://127.0.0.1:11434",
+            )
+
+        self.translate_prompt = (
+            "Sen uzman bir tarihçi ve dilbilimcisin. "
+            "Görev: Sana verilen Latin harfli Osmanlıca/Eski Türkçe metnin tarihi bağlamını koruyarak, "
+            "sadece arkaik ve eski kelimeleri günümüz modern Türkçesine çevir. "
+            "Metnin ana kurgusunu bozma, metne yorum katma ve sadece çeviri çıktısı ver.\n\n"
+            "Metin: {text}\n"
+            "Günümüz Türkçesi:"
+        )
+
+        self.summarize_prompt = (
+            "Sen uzman bir tarihçi ve arşivcisin. "
+            "Görev: Sana verilen tarihi metnin ana konusunu ve bahsedilen olayı "
+            "en fazla 3 cümle ile, tarafsız, net ve anlaşılır bir şekilde özetle. "
+            "Yorum yapma.\n\n"
+            "Metin: {text}\n"
+            "Özet:"
+        )
+
+        self.ner_prompt = (
+            "Sen uzman bir NLP asistanısın. "
+            "Verilen tarihî metindeki varlıkları çıkar. "
+            "Kategoriler: PERSON, LOCATION, DATE, ORGANIZATION. "
+            "Metinde açıkça bulunmayan varlıkları uydurma.\n\n"
+            "Metin: {text}"
+        )
+
+    def health_check(self) -> Dict[str, Any]:
+        if self.use_mock:
+            return {
+                "provider": "mock",
+                "reachable": True,
+                "model_available": True,
+            }
+
+        return self.provider.health_check()
+
+    def _call_llm(self, prompt: str, text: str, mode: str) -> str:
+        if self.use_mock:
+            return self._mock_response(text, mode)
+
+        if self.provider is None:
+            raise RuntimeError("LLM provider is not initialized.")
+
+        if mode == "ner":
+            schema = {
+                "type": "object",
+                "properties": {
+                    "PERSON": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "LOCATION": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "DATE": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    },
+                    "ORGANIZATION": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": [
+                    "PERSON",
+                    "LOCATION",
+                    "DATE",
+                    "ORGANIZATION"
+                ]
+            }
+
+            result = self.provider.chat_json(
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Sen tarihî belge NER motorusun. "
+                            "Yalnız verilen metinde açıkça bulunan varlıkları çıkar. "
+                            "Bilgi uydurma."
+                        )
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                schema=schema,
+                temperature=0.0,
+            )
+
+            return json.dumps(result, ensure_ascii=False)
+
+        system_message = (
+            "Sen Osmanlı Türkçesi ve tarihî belgeler konusunda çalışan "
+            "yerel bir belge analiz modelisin. "
+            "Yalnız verilen metin üzerinde çalış. "
+            "Metinde bulunmayan tarihî bilgi ekleme."
+        )
+
+        return self.provider.chat(
+            messages=[
+                {
+                    "role": "system",
+                    "content": system_message
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.1,
+            think=False,
+        )
+
+    def _mock_response(self, text: str, mode: str) -> str:
+        if mode == "translate":
+            return (
+                "Kardeşinin oğlu Ak Timur'u görevlendirdi; "
+                "emrinde çok cesur askerler vardı."
+            )
+
+        if mode == "summarize":
+            return (
+                "Metinde bir görevlendirme ve askerî hareket anlatılmaktadır."
+            )
+
+        if mode == "ner":
+            return json.dumps(
+                {
+                    "PERSON": ["Ak Timur"],
+                    "LOCATION": [],
+                    "DATE": [],
+                    "ORGANIZATION": []
+                },
+                ensure_ascii=False,
+            )
+
+        return ""
+
+    def translate_to_modern_turkish(self, simple_latin_text: str) -> str:
+        formatted_prompt = self.translate_prompt.format(text=simple_latin_text)
+        return self._call_llm(
+            formatted_prompt,
+            simple_latin_text,
+            mode="translate"
+        )
+
+    def summarize_document(self, full_text: str) -> str:
+        formatted_prompt = self.summarize_prompt.format(text=full_text)
+        return self._call_llm(
+            formatted_prompt,
+            full_text,
+            mode="summarize"
+        )
+
+    def extract_entities(self, full_text: str) -> Dict[str, Any]:
+        formatted_prompt = self.ner_prompt.format(text=full_text)
+
+        raw_json_str = self._call_llm(
+            formatted_prompt,
+            full_text,
+            mode="ner"
+        )
+
+        try:
+            parsed = json.loads(raw_json_str)
+
+            expected_keys = {
+                "PERSON",
+                "LOCATION",
+                "DATE",
+                "ORGANIZATION"
+            }
+
+            if set(parsed.keys()) != expected_keys:
+                raise ValueError(
+                    f"Unexpected NER keys: {parsed.keys()}"
+                )
+
+            for key in expected_keys:
+                if not isinstance(parsed[key], list):
+                    raise ValueError(
+                        f"{key} must be a list."
+                    )
+
+            return parsed
+
+        except (json.JSONDecodeError, ValueError, TypeError) as exc:
+            logger.error(
+                "LLM NER output validation failed: %s",
+                exc
+            )
+
+            return {
+                "PERSON": [],
+                "LOCATION": [],
+                "DATE": [],
+                "ORGANIZATION": []
+            }

@@ -1,0 +1,16 @@
+﻿char,unicode,name,role
+ء,U+0621,hamza,orthographic_sign
+آ,U+0622,alef_madda,composed_letter/sign
+ؤ,U+0624,waw_hamza,composed
+ئ,U+0626,ye_hamza,composed
+ى,U+0649,alef_maksura,variant
+ة,U+0629,ta_marbuta,arabic_loan_variant
+ﻻ,U+FEFB,lam_alef_presentation,compatibility_form_do_not_label_as_separate_letter
+َ,U+064E,fatha,diacritic
+ِ,U+0650,kasra,diacritic
+ُ,U+064F,damma,diacritic
+ْ,U+0652,sukun,diacritic
+ّ,U+0651,shadda,diacritic
+ً,U+064B,fathatan,diacritic
+ٍ,U+064D,kasratan,diacritic
+ٌ,U+064C,dammatan,diacritic

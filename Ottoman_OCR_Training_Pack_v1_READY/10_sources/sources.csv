@@ -1,0 +1,14 @@
+﻿source_id,title,url,license,data_type,profile,research_use,commercial_use,notes
+openiti_ottoman_lines,OpenITI MAKHZAN Ottoman Lines,https://huggingface.co/datasets/OttomanNLP/OpenITI-MAKHZAN-Ottoman-Lines,CC BY-NC-SA,image_text_gold,CORE,yes,no,"3,654 line pairs; upstream train 3,512 / test 142; Arabic-script GT"
+openiti_makhzan_full,OpenITI MAKHZAN 2026.1.2,https://zenodo.org/records/19861912,CC BY-NC-SA,page_image_alto_gold,FULL,yes,no,6.1 GB archive; Ottoman Turkish includes page-level ALTO/XML and scans
+ottoman_place_names,Ottoman Place Names Gazetteer,https://huggingface.co/datasets/OttomanNLP/ottoman-place-names-gazetteer,CC BY-NC 4.0,lexicon_transliteration,CORE,yes,no,~44.8k Arabic-script/transliteration rows
+otc_corpus,BUCOLIN OTC-Corpus,https://huggingface.co/datasets/BUCOLIN/OTC-Corpus,CC BY-NC 4.0,historical_text_transliteration,CORE,yes,no,~1.21M rows; OCR post-correction/language modeling support
+histr,BUCOLIN HisTR,https://huggingface.co/datasets/BUCOLIN/HisTR,CC BY-NC 4.0,ner,CORE,yes,no,"25,306 rows; historical Turkish NER"
+ota_boun,BUCOLIN OTA-BOUN UD Treebank,https://huggingface.co/datasets/BUCOLIN/OTA-BOUN_UD_Treebank,CC BY-NC 4.0,syntax_morphology,CORE,yes,no,CoNLL-U train/test
+dudu,UD Ottoman Turkish DUDU,https://huggingface.co/datasets/enesyila/UD_Ottoman_Turkish-DUDU,CC BY-SA 4.0,syntax_morphology,CORE,yes,conditional,"25,010 words / 2,552 sentences"
+latoc_support,LATOC v5,https://zenodo.org/records/19445113,SEE RECORD / RAW TEXT NOT REDISTRIBUTED,pipeline_metadata,FULL,yes,verify,143 books / 13.25M words described; repository omits raw text due copyright
+anadolu_ocr_optional,Anadolu OCR Corpus,https://huggingface.co/datasets/fatihburakkaragoz/anadolu-ocr-corpus,other / per-source unclear,weak_ocr_text,OPTIONAL,research_only_after_rights_review,no,"OCR-derived, not manually corrected GT; disabled by default"
+evliya_ocr_optional,Evliya Celebi Seyahatname OCR,https://huggingface.co/datasets/fatihburakkaragoz/evliya-celebi-seyahatname-ocr,other / edition rights unclear,weak_ocr_text,OPTIONAL,research_only_after_rights_review,no,OCR-derived; disabled by default
+transkribus_print_ref,Transkribus OttomanTurkish_Print_1,https://www.transkribus.org/models/ottoman-turkish-print,model_reference,benchmark_reference,REFERENCE,n/a,n/a,"Model ID 52502; 386 pages / 23,758 lines; training data not auto-bundled"
+transkribus_generic_ref,Transkribus OttomanTurkish_generic,https://www.transkribus.org/models/ottoman-turkish-generic,model_reference,benchmark_reference,REFERENCE,n/a,n/a,"Model ID 56496; 789 pages / 25,480 lines; training data not auto-bundled"
+synthetic_bootstrap,Pack-generated synthetic bootstrap,local,generated,synthetic,BUILTIN,yes,depends_on_project,Not gold; do not use for benchmark

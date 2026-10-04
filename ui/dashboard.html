@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Otonom Belge Asistanı</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #121212; color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .bg-panel { background-color: #1e1e1e; }
+        .border-panel { border-color: #333; }
+        .accent { color: #bb86fc; }
+        .bg-accent { background-color: #bb86fc; }
+        .hover-accent:hover { color: #bb86fc; }
+        
+        .upload-area {
+            border: 2px dashed #444;
+            transition: all 0.2s ease;
+        }
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #bb86fc;
+            background-color: rgba(187, 134, 252, 0.05);
+        }
+        
+        .progress-bar-bg { background-color: #333; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 15px; display: none; }
+        .progress-bar { background-color: #bb86fc; height: 100%; width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-panel border-b border-panel p-4 flex justify-between items-center shadow-md z-10">
+        <div class="text-xl font-bold accent flex items-center gap-2">
+            <i class="fa-solid fa-layer-group"></i> Otonom Belge Asistanı
+        </div>
+        <div class="flex gap-4">
+            <a href="chat.html" class="text-gray-400 hover:text-white"><i class="fa-solid fa-comments"></i> RAG Sohbet</a>
+            <a href="/" class="text-gray-400 hover:text-white"><i class="fa-solid fa-pen-nib"></i> OCR Stüdyosu</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-6 flex flex-col gap-8">
+
+        <!-- Top: Upload Area -->
+        <section class="bg-panel rounded-xl border border-panel p-6 shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-white"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Yeni Belge Yükle</h2>
+            
+            <div class="upload-area rounded-lg p-10 flex flex-col items-center justify-center cursor-pointer" id="dropzone" onclick="document.getElementById('file-input').click()">
+                <i class="fa-solid fa-file-pdf text-4xl text-gray-500 mb-3"></i>
+                <p class="text-gray-400 font-medium text-center">Görsel veya PDF'i buraya sürükleyin ya da <span class="accent">seçmek için tıklayın</span>.</p>
+                <input type="file" id="file-input" class="hidden" accept=".pdf,.png,.jpg,.jpeg">
+                
+                <div class="w-full max-w-md progress-bar-bg" id="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+                <p id="upload-status" class="text-sm text-green-400 mt-2 hidden">Yükleniyor...</p>
+            </div>
+        </section>
+
+        <!-- Middle: RAG Search -->
+        <section class="bg-panel rounded-xl border border-panel p-6 shadow-lg">
+            <h2 class="text-xl font-bold mb-4 text-white"><i class="fa-solid fa-magnifying-glass mr-2"></i> Belgelerde Ara</h2>
+            <form id="search-form" class="flex gap-3">
+                <input type="text" id="search-input" class="flex-1 bg-[#121212] border border-panel rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#bb86fc]" placeholder="Kişi, yer veya anahtar kelime yazın...">
+                <button type="submit" class="bg-accent text-black font-bold px-6 py-3 rounded-lg hover:bg-[#9965f4] transition">
+                    Ara
+                </button>
+            </form>
+        </section>
+
+        <!-- Bottom: Document List -->
+        <section class="bg-panel rounded-xl border border-panel p-6 shadow-lg flex-1">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-folder-open mr-2"></i> Geçmiş Belgelerim</h2>
+                <span class="text-sm text-gray-400" id="doc-count">0 Belge</span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-panel text-gray-400 text-sm">
+                            <th class="pb-3 px-2 font-medium">Belge Adı</th>
+                            <th class="pb-3 px-2 font-medium">Tarih / ID</th>
+                            <th class="pb-3 px-2 font-medium">Durum</th>
+                            <th class="pb-3 px-2 font-medium text-right">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doc-list">
+                        <!-- Loaded dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

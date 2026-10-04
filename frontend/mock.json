@@ -1,0 +1,100 @@
+{
+  "document": {
+    "filename": "ornek_ferman.pdf",
+    "document_type": "Ferman",
+    "language": "ota",
+    "document_id": 1,
+    "page_count": 1
+  },
+  "image_processing": {
+    "applied": ["denoise", "deskew", "binarize"],
+    "ocr_safe_image": "http://localhost:3000/ocr_safe.jpg",
+    "warnings": []
+  },
+  "ocr": {
+    "ottoman_text": "بسم الله الرحمن الرحيم",
+    "confidence": 92.5,
+    "engine": "tesseract",
+    "fallback_used": false,
+    "lines": [
+      {
+        "line_id": "L1",
+        "line_no": 1,
+        "text": "بسم الله الرحمن الرحيم",
+        "ocr_text": "بسم الله الرحمن الرحيم",
+        "confidence": 99.1
+      }
+    ]
+  },
+  "transliteration": {
+    "latin_text": "Bismillahirrahmanirrahim",
+    "confidence": 95.0,
+    "method": "rule_based",
+    "lines": [
+      {
+        "line_id": "L1",
+        "line_no": 1,
+        "text": "Bismillahirrahmanirrahim",
+        "confidence": 95.0
+      }
+    ],
+    "warnings": []
+  },
+  "modern_turkish": {
+    "text": "Rahman ve Rahim olan Allah'ın adıyla",
+    "confidence": 90.0,
+    "provider": "llm",
+    "lines": [
+      {
+        "line_id": "L1",
+        "line_no": 1,
+        "text": "Rahman ve Rahim olan Allah'ın adıyla",
+        "modern_text": "Rahman ve Rahim olan Allah'ın adıyla",
+        "confidence": 90.0
+      }
+    ],
+    "warnings": []
+  },
+  "entities": {
+    "persons": [{"entity_id": "e1", "entity_type": "PERSON", "text": "Sultan Süleyman", "confidence": 98.0}],
+    "places": [],
+    "institutions": [],
+    "dates": [],
+    "titles": [],
+    "document_marks": []
+  },
+  "historical_analysis": {
+    "possible_period": "16. Yüzyıl",
+    "possible_sultan_period": "Kanuni Sultan Süleyman",
+    "possible_author": "Nişancı",
+    "possible_institution": "Divan-ı Hümayun",
+    "document_type": "Ferman",
+    "historical_context": "Osmanlı hukuk metinlerine dair klasik bir başlangıç.",
+    "confidence": 88.5,
+    "provisional": false
+  },
+  "evidence": {
+    "document_evidence": [],
+    "historical_external_evidence": [
+        {"title": "TDV İslam Ansiklopedisi", "url": "https://islamansiklopedisi.org.tr"}
+    ],
+    "citations": [],
+    "model_inference": [],
+    "document_claims": [
+      {"field": "document_type", "value": "Ferman", "isDetected": true, "confidence": 95.0},
+      {"field": "date_normalized", "value": "1520", "isDetected": true, "confidence": 90.0}
+    ]
+  },
+  "confidence": {
+    "ocr": 92.5,
+    "transliteration": 95.0,
+    "modern_turkish": 90.0,
+    "entities": 98.0,
+    "retrieval_strength": 85.0,
+    "evidence_coverage": 80.0,
+    "combined": 90.5,
+    "combined_provisional": false
+  },
+  "uncertainties": [],
+  "warnings": []
+}

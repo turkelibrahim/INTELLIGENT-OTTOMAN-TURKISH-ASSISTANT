@@ -1,0 +1,12 @@
+$ErrorActionPreference = "Stop"
+$Root = Split-Path -Parent $PSScriptRoot
+& "$PSScriptRoot\00_install.ps1"
+$Python = Join-Path $Root ".venv\Scripts\python.exe"
+& $Python "$PSScriptRoot\01_download_core.py"
+& $Python "$PSScriptRoot\03_materialize_openiti_lines.py"
+& $Python "$PSScriptRoot\05_build_word_lexicon.py"
+& $Python "$PSScriptRoot\07_make_splits.py"
+& $Python "$PSScriptRoot\08_export_kraken.py"
+& $Python "$PSScriptRoot\09_validate_pack.py"
+& $Python "$PSScriptRoot\10_hash_pack.py"
+Write-Host "CORE_OCR_TRAINING_DATA_READY"
