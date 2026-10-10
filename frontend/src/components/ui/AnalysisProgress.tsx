@@ -1,4 +1,6 @@
 import type { AnalysisStage } from "@/lib/api";
+import { AlertTriangle } from 'lucide-react';
+
 
 const STEPS = [
   { key: "UPLOADING",        label: "Hazırlanıyor" },
@@ -32,7 +34,7 @@ export default function AnalysisProgress({ stage, uploadProgress }: AnalysisProg
   if (isError) {
     return (
       <div className="ota-progress-error" role="alert">
-        <span className="ota-progress-error-icon">⚠</span>
+        <span className="ota-progress-error-icon"><AlertTriangle className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
         <span>Analiz tamamlanamadı. Lütfen tekrar deneyin.</span>
       </div>
     );

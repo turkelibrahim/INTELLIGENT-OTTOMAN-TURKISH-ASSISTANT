@@ -4,12 +4,44 @@ import { Icons } from "@/components/Icons";
 
 interface Message {
   id: string | number;
-  role: "user" | "assistant";
+  role: "user" | "assistant" | "error";
   content: string;
 }
 
 interface FloatingChatWidgetProps {
   documentId: number | null;
+}
+
+function renderFormattedText(text: string) {
+  if (!text) return null;
+  const lines = text.split('\n');
+  return lines.map((line, lineIdx) => {
+    const isBullet = line.trim().startsWith('- ') || line.trim().startsWith('* ');
+    const cleanLine = isBullet ? line.trim().substring(2).trim() : line;
+    
+    const parts = cleanLine.split(/(\*\*.*?\*\*)/g);
+    const renderedParts = parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index} className="font-semibold text-[var(--ota-gold)]">{part.slice(2, -2)}</strong>;
+      }
+      return <React.Fragment key={index}>{part}</React.Fragment>;
+    });
+
+    if (isBullet) {
+      return (
+        <div key={lineIdx} className="flex items-start gap-2 mb-1">
+          <span className="text-[var(--ota-gold)] mt-0.5">•</span>
+          <span>{renderedParts}</span>
+        </div>
+      );
+    }
+    
+    return (
+      <span key={lineIdx} className="block mb-1 last:mb-0">
+        {renderedParts}
+      </span>
+    );
+  });
 }
 
 export function FloatingChatWidget({ documentId }: FloatingChatWidgetProps) {
@@ -51,13 +83,16 @@ export function FloatingChatWidget({ documentId }: FloatingChatWidgetProps) {
     }
   }, [documentId, isOpen, sessionId, error]);
 
-  const sendMessage = async (e?: React.FormEvent) => {
+  const sendMessage = async (e?: React.FormEvent, isRetry: boolean = false, retryText?: string) => {
     if (e) e.preventDefault();
-    if (!input.trim() || !sessionId || loading) return;
+    const userMsg = isRetry ? (retryText || "") : input.trim();
+    if (!userMsg || !sessionId || loading) return;
 
-    const userMsg = input.trim();
-    setInput("");
-    setMessages(prev => [...prev, { id: Date.now(), role: "user", content: userMsg }]);
+    if (!isRetry) setInput("");
+    
+    if (!isRetry) {
+      setMessages(prev => [...prev, { id: Date.now(), role: "user", content: userMsg }]);
+    }
     setLoading(true);
     setError("");
     
@@ -69,7 +104,12 @@ export function FloatingChatWidget({ documentId }: FloatingChatWidgetProps) {
         content: response.content 
       }]);
     } catch (err) {
-      setError("Mesaj gönderilemedi. Lütfen tekrar deneyin.");
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        role: "error",
+        content: "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+        originalInput: userMsg
+      }]);
       console.error(err);
     } finally {
       setLoading(false);
@@ -100,7 +140,7 @@ export function FloatingChatWidget({ documentId }: FloatingChatWidgetProps) {
             <div className="flex items-center gap-3 text-amber-500">
               {Icons.chat}
               <div>
-                <h3 className="font-semibold text-slate-100 text-sm">Belge Asistanıı</h3>
+                <h3 className="font-semibold text-slate-100 text-sm">Belge Asistanı</h3>
                 <p className="text-[10px] text-emerald-400 font-medium tracking-wider uppercase">Çevrimiçi</p>
               </div>
             </div>
@@ -114,18 +154,45 @@ export function FloatingChatWidget({ documentId }: FloatingChatWidgetProps) {
 
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar bg-slate-900/60">
-            {messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`max-w-[85%] rounded-xl px-4 py-2.5 shadow-sm ${
-                  msg.role === "user" 
-                    ? "bg-amber-500/90 text-slate-900 self-end rounded-tr-sm" 
-                    : "bg-slate-800 text-slate-200 self-start border border-slate-700 rounded-tl-sm"
-                }`}
-              >
-                <p className="whitespace-pre-wrap text-[14px] leading-relaxed font-medium">{msg.content}</p>
-              </div>
-            ))}
+            {messages.map((msg) => {
+              if (msg.role === 'error') {
+                return (
+                  <div key={msg.id} className="flex flex-col items-center my-1 shrink-0">
+                    <div className="bg-red-900/10 border border-red-900/30 px-3 py-2 rounded-xl flex items-center justify-between gap-3 shadow-sm text-xs max-w-[90%] w-full">
+                      <span className="text-red-400 font-medium flex items-center gap-1.5 shrink-0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        {msg.content}
+                      </span>
+                      <button 
+                        onClick={() => {
+                          const orig = (msg as unknown as Record<string, unknown>).originalInput as string | undefined;
+                          if (orig) {
+                            setMessages(prev => prev.filter(m => m.id !== msg.id));
+                            sendMessage(undefined, true, orig);
+                          }
+                        }} 
+                        className="bg-red-900/20 hover:bg-red-900/40 text-red-400 font-bold px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap border border-red-900/30 shadow-sm shrink-0"
+                      >
+                        Tekrar Dene
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div 
+                  key={msg.id} 
+                  className={`max-w-[85%] rounded-xl px-4 py-2.5 shadow-sm ${
+                    msg.role === "user" 
+                      ? "bg-amber-500/90 text-slate-900 self-end rounded-tr-sm" 
+                      : "bg-slate-800 text-slate-200 self-start border border-slate-700 rounded-tl-sm"
+                  }`}
+                >
+                  <div className="whitespace-pre-wrap text-[14px] leading-relaxed font-medium">{renderFormattedText(msg.content)}</div>
+                </div>
+              );
+            })}
             
             {loading && (
               <div className="bg-slate-800 text-slate-400 self-start border border-slate-700 rounded-xl rounded-tl-sm px-4 py-3 max-w-[85%] flex items-center gap-2 shadow-sm">

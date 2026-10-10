@@ -1,4 +1,4 @@
-﻿---
+---
 type: change_log
 status: verified
 last_verified: 2026-08-13
@@ -9,7 +9,11 @@ tags: [changelog]
 
 # Change Log
 
-## 2026-08-21 Runtime Start Success
+## 2026-10-06 TASK-20261006-FIX-12-ANALYSIS-BUTTON
+- Fixed a frontend bug where the Dashboard "Analiz Et" button appeared to do nothing because the UI instantly reverted to the upload form.
+- The `isProcessing` flag in `frontend/src/app/(app)/dashboard/hooks.ts` was overly restrictive (`UPLOADING` || `PREPROCESSING`). It was updated to cover all active analysis stages (`OCR`, `TRANSLITERATION`, etc.).
+- Verified the fix by running the full backend pipeline with `test_image.png`, ensuring the processing banner correctly stays on screen and transitions to the `COMPLETE` state successfully.
+- Added `BUG_12_ANALYSIS_BUTTON_FIX.md` report.
 - Started local runtime with `scripts/runtime_launcher.ps1 -Action Restart`.
 - Verified backend `/health` HTTP 200 and frontend `/login` HTTP 200.
 - Verified status: Backend ONLINE, Frontend ONLINE, Database READY, WSL Ubuntu ONLINE, Kraken READY, CUDA True, Model VERIFIED.

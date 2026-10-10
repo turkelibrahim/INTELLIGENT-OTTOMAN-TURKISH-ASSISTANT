@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { getToken, analysisApi, ApiError, type AnalysisStage } from "@/lib/api";
 import { saveActiveDocumentContext } from "@/lib/documentContext";
 import AnalysisProgress from "@/components/ui/AnalysisProgress";
+import { AlertTriangle, FileText } from 'lucide-react';
+
 
 const ACCEPTED_TYPES = ".jpg,.jpeg,.png,.tiff,.tif,.pdf";
 const MAX_SIZE_MB = 50;
@@ -130,21 +132,27 @@ export default function UploadPage() {
   if (isUploading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[80vh] p-8 animate-in fade-in duration-500">
-        <div className="w-full max-w-3xl glass-panel p-10 rounded-2xl border border-amber-500/20 shadow-[0_10px_40px_rgba(215,165,72,0.1)] text-center">
-          <h2 className="text-2xl font-bold text-amber-500 mb-2">Belge Analiz Ediliyor</h2>
-          <p className="text-slate-400 mb-10">Lütfen bekleyin, Osmanlıca belgeniz yapay zeka sistemlerimiz tarafından işleniyor.</p>
+        <div className="w-full max-w-3xl glass-panel p-10 rounded-2xl border border-[var(--ota-gold)]/20 shadow-[0_10px_40px_rgba(215,165,72,0.1)] text-center relative overflow-hidden bg-[var(--ota-surface-dark)]/80">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--ota-gold)]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
           
-          <AnalysisProgress stage={stage} uploadProgress={uploadProgress} />
+          <h2 className="text-2xl font-serif font-bold text-[var(--ota-gold)] mb-2 relative z-10">Belge Analiz Ediliyor</h2>
+          <p className="text-[var(--ota-text-muted)] mb-10 text-sm max-w-lg mx-auto relative z-10">Lütfen bekleyin, Osmanlıca belgeniz yapay zeka sistemlerimiz tarafından işleniyor.</p>
+          
+          <div className="relative z-10">
+            <AnalysisProgress stage={stage} uploadProgress={uploadProgress} />
+          </div>
           
           {stage === "COMPLETE" && (
-            <div className="mt-8 text-emerald-400 font-semibold animate-bounce">
+            <div className="mt-8 text-[var(--ota-success)] font-semibold animate-bounce relative z-10">
               Analiz tamamlandı! Çalışma alanına yönlendiriliyorsunuz...
             </div>
           )}
           {stage === "ERROR" && (
-            <div className="mt-8 text-red-400 font-semibold">
-              Bir hata oluştu: {error}
-              <button onClick={() => { setIsUploading(false); setStage("IDLE"); }} className="block mt-4 mx-auto text-amber-500 underline">Geri Dön ve Tekrar Dene</button>
+            <div className="mt-8 text-[var(--ota-ruby)] font-semibold p-4 bg-[var(--ota-ruby)]/10 rounded-xl border border-[var(--ota-ruby)]/20 relative z-10">
+              <span className="block mb-2">Bir hata oluştu: {error}</span>
+              <button onClick={() => { setIsUploading(false); setStage("IDLE"); }} className="px-4 py-2 mt-2 text-sm font-medium bg-[var(--ota-bg-2)] border border-[var(--ota-border)] hover:border-[var(--ota-ruby)]/50 hover:bg-[var(--ota-ruby)]/10 text-[var(--ota-text)] rounded-lg transition-colors inline-block">
+                Geri Dön ve Tekrar Dene
+              </button>
             </div>
           )}
         </div>
@@ -154,29 +162,33 @@ export default function UploadPage() {
 
   // Ekran: Dosya Seçimi ve Bilgi Girişi
   return (
-    <div className="w-full p-8 animate-in slide-in-from-bottom-4 fade-in duration-700 flex justify-center items-center min-h-[80vh]">
-      <div className="w-full max-w-2xl glass-panel rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
-        <div className="p-8 border-b border-dashed border-slate-700/50 bg-slate-900/30">
-          <h1 className="text-2xl font-bold text-slate-100 flex items-center gap-3">
-            <span className="text-amber-500 bg-amber-500/10 p-2 rounded-xl">📄</span> 
-            Yeni Belge Yükle
-          </h1>
-          <p className="text-slate-400 text-sm mt-2">
-            Osmanlıca belgenizi yükleyin, akıllı analiz motorumuz hemen çalışmaya başlasın.
-          </p>
-        </div>
+    <div className="w-full p-4 lg:p-8 animate-in slide-in-from-bottom-4 fade-in duration-700 flex justify-center items-center min-h-[80vh]">
+      <div className="w-full max-w-2xl glass-panel rounded-2xl overflow-hidden shadow-[var(--glass-shadow)] border border-[var(--ota-border)] bg-[var(--ota-surface)] relative">
+        <div className="absolute inset-0 opacity-[0.03] bg-[url('/auth/floral-pattern.png')] bg-repeat pointer-events-none" />
+        
+        <header className="ota-page-header">
+          <div className="ota-page-header-inner">
+            <div className="ota-page-header-icon" aria-hidden="true">
+              <span className="text-2xl drop-shadow-md"><FileText className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
+            </div>
+            <div>
+              <h1 className="ota-page-title">Yeni Belge Yükle</h1>
+              <p className="ota-page-subtitle">Osmanlıca belgenizi yükleyin, akıllı analiz motorumuz hemen çalışmaya başlasın. Yüksek çözünürlüklü ve net taranmış belgeler en iyi sonucu verir.</p>
+            </div>
+          </div>
+        </header>
 
-        <form onSubmit={handleSubmit} className="p-8">
+        <form onSubmit={handleSubmit} className="p-8 relative z-10">
           {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium flex items-center gap-2">
-              ⚠️ {error}
+            <div className="mb-6 p-4 rounded-xl bg-[var(--ota-ruby)]/10 border border-[var(--ota-ruby)]/20 text-[var(--ota-ruby)] text-sm font-medium flex items-center gap-3">
+              <span className="text-xl"><AlertTriangle className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> {error}
             </div>
           )}
 
           {/* Dropzone */}
           <div
-            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 mb-6 relative group ${
-              isDragging ? "border-amber-500 bg-amber-500/5" : file ? "border-emerald-500/50 bg-emerald-500/5" : "border-slate-700 hover:border-amber-500/50 hover:bg-white/5"
+            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all duration-300 mb-8 relative group ${
+              isDragging ? "border-[var(--ota-gold)] bg-[var(--ota-gold-dim)]" : file ? "border-[var(--ota-success)]/50 bg-[var(--ota-success)]/5" : "border-[var(--ota-border-hover)] hover:border-[var(--ota-gold)]/50 hover:bg-[var(--ota-bg-2)]"
             }`}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={(e) => { e.preventDefault(); setIsDragging(false); }}
@@ -189,28 +201,28 @@ export default function UploadPage() {
               <div className="flex flex-col items-center">
                 {preview ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={preview} alt="Ön izleme" className="max-h-40 rounded-lg shadow-md border border-slate-700/50 mb-4" />
+                  <img src={preview} alt="Ön izleme" className="max-h-48 rounded-lg shadow-md border border-[var(--ota-border)] mb-4 object-contain" />
                 ) : (
-                  <div className="w-16 h-20 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700 mb-4 shadow-md">
-                    <span className="text-lg font-bold text-amber-500">PDF</span>
+                  <div className="w-16 h-20 rounded-lg bg-[var(--ota-bg-2)] flex items-center justify-center border border-[var(--ota-border)] mb-4 shadow-sm">
+                    <span className="text-lg font-bold text-[var(--ota-gold)]">PDF</span>
                   </div>
                 )}
-                <p className="font-semibold text-emerald-400 mb-1">{file.name}</p>
-                <p className="text-xs text-slate-400">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-                <button type="button" onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); }} className="mt-4 text-xs text-red-400 hover:text-red-300 font-medium px-3 py-1.5 rounded-md hover:bg-red-500/10 transition-colors">
+                <p className="font-semibold text-[var(--ota-success)] mb-1 text-sm">{file.name}</p>
+                <p className="text-xs text-[var(--ota-text-muted)]">{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                <button type="button" onClick={(e) => { e.stopPropagation(); setFile(null); setPreview(null); }} className="mt-5 text-xs text-[var(--ota-ruby)] hover:text-[var(--ota-ruby)]/80 font-medium px-4 py-2 rounded-lg bg-[var(--ota-ruby)]/10 border border-[var(--ota-ruby)]/20 hover:bg-[var(--ota-ruby)]/20 transition-colors">
                   ✕ Dosyayı Değiştir
                 </button>
               </div>
             ) : (
               <div>
-                <div className="w-16 h-16 rounded-2xl bg-slate-800/80 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform shadow-inner">
-                  <span className="text-2xl text-amber-500">↑</span>
+                <div className="w-16 h-16 rounded-2xl bg-[var(--ota-bg-2)] border border-[var(--ota-border)] flex items-center justify-center mx-auto mb-4 group-hover:scale-110 group-hover:bg-[var(--ota-gold-dim)] group-hover:border-[var(--ota-gold)]/30 transition-all shadow-sm">
+                  <span className="text-2xl text-[var(--ota-gold)]">↑</span>
                 </div>
-                <p className="font-medium text-slate-300 mb-2">Dosyayı sürükleyin veya seçmek için tıklayın</p>
-                <p className="text-xs text-slate-500 mb-6">Maksimum dosya boyutu: {MAX_SIZE_MB} MB</p>
+                <p className="font-medium text-[var(--ota-text)] mb-2">Dosyayı sürükleyin veya seçmek için tıklayın</p>
+                <p className="text-xs text-[var(--ota-text-muted)] mb-6">Maksimum dosya boyutu: {MAX_SIZE_MB} MB</p>
                 <div className="flex gap-2 justify-center">
                   {formats.map(f => (
-                    <span key={f.label} className="px-2.5 py-1 rounded-md text-[10px] font-bold" style={{ backgroundColor: `${f.color}15`, color: f.color, border: `1px solid ${f.color}30` }}>
+                    <span key={f.label} className="px-2.5 py-1 rounded border text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: `${f.color}10`, color: f.color, borderColor: `${f.color}30` }}>
                       {f.label}
                     </span>
                   ))}
@@ -220,36 +232,36 @@ export default function UploadPage() {
           </div>
 
           {/* Metadata Form */}
-          <div className="space-y-5">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Belge Başlığı <span className="text-red-400">*</span>
+              <label className="block text-xs font-semibold text-[var(--ota-text-muted)] uppercase tracking-wider mb-2">
+                Belge Başlığı <span className="text-[var(--ota-ruby)]">*</span>
               </label>
               <input 
                 required 
                 value={title} 
                 onChange={(e) => setTitle(e.target.value)} 
-                className="w-full h-12 px-4 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all" 
+                className="w-full h-12 px-4 bg-[var(--ota-bg-2)] border border-[var(--ota-border)] rounded-xl text-[var(--ota-text)] placeholder-[var(--ota-text-muted)] focus:outline-none focus:border-[var(--ota-gold)] focus:ring-1 focus:ring-[var(--ota-gold)] transition-all shadow-inner" 
                 placeholder="Örn: Vakfiye Belgesi 1832" 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Açıklama</label>
+              <label className="block text-xs font-semibold text-[var(--ota-text-muted)] uppercase tracking-wider mb-2">Açıklama (İsteğe Bağlı)</label>
               <textarea 
                 value={description} 
                 onChange={(e) => setDescription(e.target.value)} 
-                className="w-full p-4 bg-slate-900/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all resize-y min-h-[100px]" 
+                className="w-full p-4 bg-[var(--ota-bg-2)] border border-[var(--ota-border)] rounded-xl text-[var(--ota-text)] placeholder-[var(--ota-text-muted)] focus:outline-none focus:border-[var(--ota-gold)] focus:ring-1 focus:ring-[var(--ota-gold)] transition-all resize-y min-h-[120px] shadow-inner" 
                 placeholder="Belge hakkında kısa açıklama..." 
               />
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4 justify-end mt-8 pt-6 border-t border-dashed border-slate-700/50">
-            <button type="button" onClick={() => router.push("/dashboard")} className="px-6 py-3 rounded-xl font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 transition-colors">
+          <div className="flex gap-4 justify-end mt-8 pt-6 border-t border-[var(--ota-border)]/50">
+            <button type="button" onClick={() => router.push("/dashboard")} className="px-6 py-3 rounded-xl font-medium text-[var(--ota-text)] bg-[var(--ota-bg-2)] border border-[var(--ota-border)] hover:bg-[var(--ota-bg)] transition-colors text-sm">
               İptal
             </button>
-            <button type="submit" disabled={!file} className={`px-6 py-3 rounded-xl font-bold text-slate-900 bg-amber-500 hover:bg-amber-400 transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] ${!file ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <button type="submit" disabled={!file} className={`px-6 py-3 rounded-xl font-bold text-[#0A202A] bg-[var(--ota-gold)] hover:bg-[var(--ota-gold)]/90 transition-all shadow-lg text-sm ${!file ? 'opacity-50 cursor-not-allowed' : ''}`}>
               Yükle ve Analizi Başlat
             </button>
           </div>

@@ -118,7 +118,7 @@ try:
         "all_verified": all(item.get("verified") is True for item in results),
     }, ensure_ascii=False))
 finally:
-    store.close()
+    pass
 '@
       Push-Location $BackendDir
       try {

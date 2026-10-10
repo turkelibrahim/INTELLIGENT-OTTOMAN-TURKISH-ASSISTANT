@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { OCRPipelineLine } from "@/lib/api";
 import { Icons } from "@/components/Icons";
+import { Copy, Edit2 } from 'lucide-react';
 
 export default function OCRPanel({
   ocrLines,
@@ -54,7 +55,7 @@ export default function OCRPanel({
           OCR Metni
         </h2>
         <div className="db-panel-actions">
-          <button className="db-icon-btn" onClick={onCopy} title="Metni Kopyala">📋</button>
+          <button className="db-icon-btn flex items-center justify-center" onClick={onCopy} title="Metni Kopyala"><Copy className="w-4 h-4 text-current" /></button>
         </div>
       </div>
       
@@ -114,7 +115,7 @@ export default function OCRPanel({
          <div className="db-footer-right">
            {hasResult && !isEditing && (
              <button className="db-action-btn" onClick={handleEdit}>
-               Metni Düzenle ✎
+               Metni Düzenle <Edit2 className="w-4 h-4 ml-1 inline-block" />
              </button>
            )}
            {isEditing && (

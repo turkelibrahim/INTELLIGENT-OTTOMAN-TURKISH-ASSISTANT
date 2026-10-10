@@ -18,6 +18,7 @@ from app.api.routes.document_analysis import router as document_analysis_router
 from app.api.routes.ocr import router as ocr_router
 from app.api.routes.ground_truth import router as ground_truth_router
 from app.api.routes.annotation import router as annotation_router
+from app.api.routes.system import router as system_router
 
 api_router = APIRouter()
 
@@ -36,3 +37,4 @@ api_router.include_router(document_analysis_router)
 api_router.include_router(ocr_router)
 api_router.include_router(ground_truth_router)
 api_router.include_router(annotation_router, prefix="/annotation", tags=["Annotation"])
+api_router.include_router(system_router)

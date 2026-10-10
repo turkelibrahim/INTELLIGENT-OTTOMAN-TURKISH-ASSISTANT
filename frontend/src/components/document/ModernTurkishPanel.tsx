@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Icons } from "@/components/Icons";
+import { CheckCircle, Book, Copy, Edit2 } from 'lucide-react';
+
 
 export default function ModernTurkishPanel({
   modernLines,
@@ -35,11 +37,11 @@ export default function ModernTurkishPanel({
     <div className="db-panel">
       <div className="db-panel-header">
         <h2 className="db-panel-title">
-          <span className="db-panel-icon">📖</span>
+          <span className="db-panel-icon"><Book className="w-5 h-5 text-current" /></span>
           Günümüz Türkçesi
         </h2>
         <div className="db-panel-actions">
-          <button className="db-icon-btn" onClick={onCopy} title="Çeviriyi Kopyala">📋</button>
+          <button className="db-icon-btn flex items-center justify-center" onClick={onCopy} title="Çeviriyi Kopyala"><Copy className="w-4 h-4 text-current" /></button>
         </div>
       </div>
       
@@ -71,14 +73,14 @@ export default function ModernTurkishPanel({
          <div className="db-footer-left">
            {hasResult && !isEditing && (
              <span className="db-confidence-indicator">
-                ✔️ Çeviri güveni: Yüksek
+                <CheckCircle className="w-5 h-5 inline-block mr-1 align-text-bottom" /> Çeviri güveni: Yüksek
              </span>
            )}
          </div>
          <div className="db-footer-right">
            {hasResult && !isEditing && (
              <button className="db-action-btn" onClick={handleEdit}>
-               Çeviriyi Düzenle ✎
+               Çeviriyi Düzenle <Edit2 className="w-4 h-4 ml-1 inline-block" />
              </button>
            )}
            {isEditing && (

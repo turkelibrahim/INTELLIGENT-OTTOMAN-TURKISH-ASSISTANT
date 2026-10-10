@@ -18,7 +18,7 @@ class PersistentKrakenServiceClient:
         self.timeout_seconds = int(os.getenv("OCR_KRAKEN_SERVICE_TIMEOUT", str(timeout_seconds)))
 
     def ready(self) -> Dict[str, Any]:
-        response = requests.get(f"{self.base_url}/health/ready", timeout=2)
+        response = requests.get(f"{self.base_url}/health/ready", timeout=10)
         response.raise_for_status()
         payload = response.json()
         if not payload.get("model_loaded"):

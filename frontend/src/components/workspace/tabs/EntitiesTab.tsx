@@ -1,45 +1,49 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { FullDocumentAnalysisResponse } from "@/lib/api";
-import { entityDisplayText, entityIsKnown } from "@/lib/viewModel";
+import type { FullDocumentAnalysisResponse, EntityItem } from "@/lib/api";
+import { entityDisplayText, translateInternalValue } from "@/lib/viewModel";
 import { EntityKnowledgeModal } from "@/components/historical/EntityKnowledgeModal";
+import { Landmark, Search } from 'lucide-react';
+
 
 interface Props {
   result: FullDocumentAnalysisResponse;
 }
 
-type FilterKey = "all" | "persons" | "places" | "institutions" | "dates" | "document_marks";
+type FilterKey = "all" | "persons" | "places" | "institutions";
 
-const FILTERS: Array<{ key: FilterKey; label: string; icon: string }> = [
-  { key: "all",            label: "Tümü", icon: "📑" },
-  { key: "persons",        label: "Kişiler", icon: "👤" },
-  { key: "places",         label: "Yerler", icon: "🌍" },
-  { key: "institutions",   label: "Kurumlar", icon: "🏛️" },
-  { key: "dates",          label: "Tarihler", icon: "📅" },
-  { key: "document_marks", label: "Belge İşaretleri", icon: "✒️" },
+const FILTERS: Array<{ key: FilterKey; label: string; icon: React.ReactNode }> = [
+  { key: "all",            label: "Tümü", icon: <Search className="w-4 h-4 inline-block mr-1 align-text-bottom" /> },
+  { key: "persons",        label: "Kişiler", icon: <Search className="w-4 h-4 inline-block mr-1 align-text-bottom" /> },
+  { key: "places",         label: "Yerler", icon: <Search className="w-4 h-4 inline-block mr-1 align-text-bottom" /> },
+  { key: "institutions",   label: "Kurumlar", icon: <Landmark className="w-5 h-5 inline-block mr-1 align-text-bottom" /> },
 ];
 
 export default function EntitiesTab({ result }: Props) {
   const [activeFilter, setActiveFilter] = useState<FilterKey>("all");
   const [selectedEntity, setSelectedEntity] = useState<{name: string, desc: string} | null>(null);
 
-  const entityGroups = useMemo(() => ({
-    persons:        { label: "Kişi",           color: "bg-blue-500",      items: (result.entities?.persons ?? []).filter(entityIsKnown) },
-    places:         { label: "Yer",            color: "bg-emerald-500",   items: (result.entities?.places ?? []).filter(entityIsKnown) },
-    institutions:   { label: "Kurum",          color: "bg-purple-500",    items: (result.entities?.institutions ?? []).filter(entityIsKnown) },
-    dates:          { label: "Tarih",          color: "bg-amber-500",     items: (result.entities?.dates ?? []).filter(entityIsKnown) },
-    document_marks: { label: "Belge İş.",      color: "bg-rose-500",      items: (result.entities?.document_marks ?? []).filter(entityIsKnown) },
-  }), [result]);
+  const entityGroups = useMemo(() => {
+    const persons = (result.entities?.persons ?? []);
+    const places = (result.entities?.places ?? []);
+    const institutions = (result.entities?.institutions ?? []);
+
+    return {
+      persons: { label: "Kişi", color: "bg-[var(--ota-ocean)]/10 text-[var(--ota-ocean)] border-[var(--ota-ocean)]/30", items: persons },
+      places: { label: "Yer", color: "bg-[var(--ota-iznik-turquoise)]/10 text-[var(--ota-iznik-turquoise)] border-[var(--ota-iznik-turquoise)]/30", items: places },
+      institutions: { label: "Kurum", color: "bg-[var(--ota-gold)]/10 text-[var(--ota-gold)] border-[var(--ota-gold)]/30", items: institutions },
+    };
+  }, [result]);
 
   const totalCount = Object.values(entityGroups).reduce((sum, g) => sum + g.items.length, 0);
 
   if (totalCount === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-slate-900/50 rounded-xl">
-        <span className="text-4xl mb-4">🔍</span>
-        <h3 className="text-lg font-semibold text-slate-200 mb-2">Kayıt Bulunamadı</h3>
-        <p className="text-sm text-slate-400">Belge içerisinde belirgin bir kişi, yer, kurum veya tarih tespit edilemedi.</p>
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-[var(--ota-bg-2)]/50 rounded-xl border border-[var(--ota-border)] m-4">
+        <span className="text-4xl mb-4 opacity-50"><Search className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
+        <h3 className="text-lg font-semibold text-[var(--ota-text)] mb-2">Kayıt Bulunamadı</h3>
+        <p className="text-sm text-[var(--ota-text-muted)]">Belge içerisinde belirgin bir kişi, yer veya kurum tespit edilemedi.</p>
       </div>
     );
   }
@@ -49,15 +53,17 @@ export default function EntitiesTab({ result }: Props) {
     : Object.entries(entityGroups).filter(([k, g]) => k === activeFilter && g.items.length > 0);
 
   return (
-    <div className="p-6 h-full overflow-y-auto custom-scrollbar bg-slate-900/50 relative">
+    <div className="p-4 lg:p-6 h-full overflow-y-auto custom-scrollbar relative bg-[var(--ota-bg-1)]">
       
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-slate-100 mb-2">Belgede Geçen Kişi ve Yerler</h3>
-        <p className="text-sm text-slate-400">Okunan belge içerisinde yapay zeka tarafından tespit edilen tarihi şahıslar, mekanlar ve olay tarihleri. <strong className="text-amber-500">Tarihsel analiz için kartlara tıklayın.</strong></p>
+        <h3 className="text-2xl font-serif font-bold text-[var(--ota-text)] mb-2">Kişiler ve Yerler</h3>
+        <p className="text-sm text-[var(--ota-text-muted)] leading-relaxed">
+          Osmanlı belgesi üzerinde yapay zeka tarafından tespit edilen tarihi şahıslar, mekanlar ve kurumlar listesi. <strong className="text-[var(--ota-gold)] font-medium">Tarihsel referans detayları için kartlara tıklayın.</strong>
+        </p>
       </div>
 
       {/* Filter chips */}
-      <div className="flex flex-wrap gap-2 mb-8" role="toolbar">
+      <div className="flex flex-wrap gap-2 lg:gap-3 mb-8 border-b border-[var(--ota-border)] pb-6" role="toolbar">
         {FILTERS.map((f) => {
           const count = f.key === "all" ? totalCount : entityGroups[f.key as Exclude<FilterKey, "all">]?.items.length ?? 0;
           if (f.key !== "all" && count === 0) return null;
@@ -68,15 +74,15 @@ export default function EntitiesTab({ result }: Props) {
               key={f.key}
               type="button"
               onClick={() => setActiveFilter(f.key)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 isActive 
-                  ? "bg-amber-500 text-slate-900 shadow-[0_0_15px_rgba(245,158,11,0.3)]" 
-                  : "bg-slate-800 text-slate-300 hover:bg-slate-700 border border-slate-700"
+                  ? "bg-[var(--ota-gold)]/10 text-[var(--ota-gold)] border border-[var(--ota-gold)] shadow-sm" 
+                  : "bg-[var(--ota-surface-dark)] text-[var(--ota-text-muted)] hover:text-[var(--ota-text)] border border-[var(--ota-border)] hover:border-[var(--ota-border-hover)]"
               }`}
             >
-              <span>{f.icon}</span>
+              <span className="text-lg">{f.icon}</span>
               <span>{f.label}</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs ${isActive ? "bg-amber-600/20 text-slate-900" : "bg-slate-900 text-slate-400"}`}>
+              <span className={`px-2 py-0.5 rounded-md text-xs font-bold ${isActive ? "bg-[var(--ota-gold)]/20 text-[var(--ota-gold)]" : "bg-[var(--ota-bg-2)] text-[var(--ota-text-muted)]"}`}>
                 {count}
               </span>
             </button>
@@ -85,53 +91,78 @@ export default function EntitiesTab({ result }: Props) {
       </div>
 
       {/* Entity grids */}
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-10">
         {displayGroups.map(([key, group]) => (
           <div key={key}>
-            <div className="flex items-center gap-3 mb-4">
-              <h4 className="text-lg font-semibold text-slate-200">{group.label} Listesi</h4>
-              <div className="flex-1 h-px bg-slate-800"></div>
+            <div className="flex items-center gap-4 mb-5">
+              <h4 className="text-sm font-bold uppercase tracking-[0.15em] text-[var(--ota-text)]">{group.label} Envanteri</h4>
+              <div className="flex-1 h-px bg-[var(--ota-border)]/50"></div>
             </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {group.items.map((entity, i) => {
-                const text = entityDisplayText(entity);
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+              {group.items.map((entity: EntityItem, i: number) => {
+                const rawText = entityDisplayText(entity);
+                const text = translateInternalValue(rawText);
                 const score = entity.confidence_score ? Math.round(entity.confidence_score * 100) : 0;
+                const isError = score > 0 && score < 30; // Only red for critical uncertainty (<30%)
                 
+                const confidenceBadgeColor = isError 
+                  ? 'bg-[var(--ota-ruby)]/10 text-[var(--ota-ruby)] border-[var(--ota-ruby)]/20'
+                  : score >= 80 ? 'bg-[var(--ota-success)]/10 text-[var(--ota-success)] border-[var(--ota-success)]/20' 
+                  : 'bg-[var(--ota-gold)]/10 text-[var(--ota-gold)] border-[var(--ota-gold)]/20';
+
+                // Format metadata
+                const source = entity.metadata?.source || "Belge";
+                const desc = (entity.metadata?.description || (entity as Record<string, string>).meaning || entity.normalized_value || "") as string;
+
                 return (
                   <div 
-                    key={`${key}-${text}-${i}`}
-                    onClick={() => setSelectedEntity({ name: text, desc: (entity.metadata?.description || (entity as Record<string, string>).meaning || entity.normalized_value || "") as string })}
-                    className="group relative bg-slate-800/80 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 p-4 rounded-xl cursor-pointer transition-all duration-300 shadow-md hover:shadow-lg hover:shadow-amber-500/10 overflow-hidden"
+                    key={`${key}-${rawText}-${i}`}
+                    onClick={() => setSelectedEntity({ name: text, desc })}
+                    className="group relative flex flex-col justify-between glass-panel bg-[var(--ota-surface)] hover:bg-[var(--ota-bg-2)] border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 p-5 lg:p-6 rounded-xl cursor-pointer transition-all duration-300 shadow-sm hover:shadow-md"
                   >
-                    {/* Hover Glow Effect */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-amber-500/0 via-amber-500/0 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    <div className="relative z-10 flex flex-col h-full justify-between">
-                      <div>
-                        <div className="flex justify-between items-start mb-2">
-                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${group.color} text-white shadow-sm`}>
+                    <div>
+                      {/* Top Header: Ad */}
+                      <h5 className="text-lg font-serif font-semibold text-[var(--ota-text)] group-hover:text-[var(--ota-gold)] transition-colors line-clamp-2 leading-snug mb-3" title={text}>
+                        {text}
+                      </h5>
+
+                      <div className="flex flex-col gap-2 mt-4">
+                        {/* Row: Tür */}
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[var(--ota-text-muted)]">Tür</span>
+                          <span className={`font-medium px-2 py-0.5 rounded border ${group.color}`}>
                             {group.label}
                           </span>
-                          {score > 0 && (
-                            <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${score >= 80 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                              %{score} Güven
-                            </span>
-                          )}
                         </div>
-                        
-                        <h5 className="text-lg font-bold text-slate-100 group-hover:text-amber-400 transition-colors mb-1 truncate" title={text}>
-                          {text}
-                        </h5>
+
+                        {/* Row: Confidence */}
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[var(--ota-text-muted)]">Güven</span>
+                          <span className={`font-medium px-2 py-0.5 rounded border ${score > 0 ? confidenceBadgeColor : 'bg-[var(--ota-bg-2)] text-[var(--ota-text-muted)] border-[var(--ota-border)]'}`}>
+                            {score > 0 ? `%${score}` : "N/A"}
+                          </span>
+                        </div>
+
+                        {/* Row: Kaynak */}
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-[var(--ota-text-muted)]">Kaynak</span>
+                          <span className="font-medium text-[var(--ota-text)] px-2 py-0.5 bg-[var(--ota-bg-2)] rounded border border-[var(--ota-border)] truncate max-w-[120px]" title={String(source)}>
+                            {String(source)}
+                          </span>
+                        </div>
                       </div>
-                      
-                      {(entity.start_offset != null || Boolean(entity.metadata?.line_no)) && (
-                        <p className="text-xs text-slate-400 flex items-center gap-1 mt-4">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                          {entity.metadata?.line_no ? `Satır ${String(entity.metadata.line_no)}'de geçiyor` : "Belgede tespit edildi"}
-                        </p>
-                      )}
                     </div>
+                    
+                    {/* Bottom Indicator for Document Position */}
+                    {(entity.start_offset != null || Boolean(entity.metadata?.line_no)) && (
+                      <div className="mt-5 pt-3 border-t border-[var(--ota-border)]/40 flex justify-between items-center">
+                        <p className="text-[10px] uppercase tracking-wider text-[var(--ota-text-muted)] flex items-center gap-1">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                          {entity.metadata?.line_no ? `Satır ${String(entity.metadata.line_no)}` : "Belgede"}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -147,7 +178,7 @@ export default function EntitiesTab({ result }: Props) {
         description={selectedEntity?.desc || ""}
         onClose={() => setSelectedEntity(null)} 
       />
-
     </div>
   );
 }
+

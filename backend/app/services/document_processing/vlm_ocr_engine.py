@@ -48,14 +48,14 @@ class VLMOCREngine:
         }
         
         system_prompt = (
-            "Sen uzman bir Osmanlıca paleografi uzmanısın. Verilen resimdeki el yazması veya matbu Osmanlıca metni tam olarak okuman gerekiyor.\n"
+            "Sen uzman bir belge okuma (OCR) ve paleografi uzmanısın. Verilen resimdeki el yazması veya matbu metni olduğu gibi, tam olarak okuman gerekiyor.\n"
             "ÇOK ÖNEMLİ KURALLAR:\n"
-            "1. Çıktı KESİNLİKLE Arap alfabesi (Osmanlı harfleri) ile olmalıdır.\n"
-            "2. Asla Latin harfleri, Türkçe transkripsiyon veya modern Türkçe çeviri kullanma!\n"
-            "3. Sayfanın sağındaki, solundaki, altındaki ve üstündeki tüm derkenarları, çıkmaları ve sonradan eklenmiş yatay/dikey notları DİKKATLE İNCELE ve EKSİKSİZ OKU.\n"
-            "4. Ana metni ve kenar notlarını (derkenar) resimde gördüğün sıraya veya mantıksal okuma sırasına göre satır satır yaz.\n"
-            "5. Satır sonlarında 'Enter' kullanarak metnin fiziksel yapısını koru.\n"
-            "6. Kesinlikle hiçbir kelimeyi veya satırı atlama."
+            "1. Resimdeki metin HANGİ ALFABEYLE (Arap harfleri, Latin harfleri, Kiril vb.) yazılmışsa, çıktıyı O ALFABEYLE ver.\n"
+            "2. Eğer metin Osmanlıca (Arap harfli) ise Arap harfleri kullan, ancak kesinlikle modern Türkçe çeviri veya Latin harfli transkripsiyon UYDURMA.\n"
+            "3. Eğer okuyamadığın, silik veya belirsiz bir kelime/harf varsa, oraya uydurmak yerine kesinlikle '[?]' veya '[okunamadı]' yaz.\n"
+            "4. Sayfanın kenarlarındaki derkenar ve çıkmaları da dikkatle incele.\n"
+            "5. Ana metni resimde gördüğün sıraya göre satır satır yaz. Satır sonlarında 'Enter' kullanarak fiziksel yapıyı koru.\n"
+            "6. Kesinlikle hiçbir kelimeyi veya satırı atlama, olmayan bir kelimeyi de ekleme."
         )
         
         payload = {

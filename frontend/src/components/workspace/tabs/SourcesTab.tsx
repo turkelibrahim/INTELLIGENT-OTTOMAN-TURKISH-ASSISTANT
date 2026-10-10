@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { FullDocumentAnalysisResponse } from "@/lib/api";
 import { mapSourceCard } from "@/lib/viewModel";
+import { BookCopy } from 'lucide-react';
 
 interface Props {
   result: FullDocumentAnalysisResponse;
@@ -10,8 +11,11 @@ interface Props {
 
 export default function SourcesTab({ result }: Props) {
   const [copiedId, setCopiedId] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("relevance");
 
-  const sources = useMemo(() => {
+  const baseSources = useMemo(() => {
     const all = result.evidence?.historical_external_evidence ?? [];
     // Deduplicate by source_id/title
     const seen = new Set<string>();
@@ -25,6 +29,42 @@ export default function SourcesTab({ result }: Props) {
       });
   }, [result]);
 
+  const sourceTypes = useMemo(() => {
+    const types = new Set(baseSources.map(s => s.sourceType).filter(Boolean));
+    return Array.from(types).sort();
+  }, [baseSources]);
+
+  const sources = useMemo(() => {
+    let filtered = baseSources;
+
+    // Text search
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(s => 
+        s.title.toLowerCase().includes(q) || 
+        s.claim.toLowerCase().includes(q) || 
+        s.citation.toLowerCase().includes(q)
+      );
+    }
+
+    // Type filter
+    if (typeFilter !== "all") {
+      filtered = filtered.filter(s => s.sourceType === typeFilter);
+    }
+
+    // Sort
+    filtered = [...filtered].sort((a, b) => {
+      if (sortBy === "title") {
+        return a.title.localeCompare(b.title);
+      }
+      // "relevance" descending
+      const parseRel = (val: string) => parseInt(val.replace(/\D/g, "")) || 0;
+      return parseRel(b.relevance) - parseRel(a.relevance);
+    });
+
+    return filtered;
+  }, [baseSources, searchQuery, typeFilter, sortBy]);
+
   const copyCitation = (id: string, citation: string) => {
     if (!citation) return;
     void navigator.clipboard.writeText(citation);
@@ -32,125 +72,127 @@ export default function SourcesTab({ result }: Props) {
     setTimeout(() => setCopiedId(""), 2000);
   };
 
-  if (sources.length === 0) {
+  if (baseSources.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-slate-900/50 rounded-xl">
-        <span className="text-5xl mb-4">📚</span>
-        <h3 className="text-lg font-semibold text-slate-200 mb-2">Kaynak Bulunamadı</h3>
-        <p className="text-sm text-slate-400">Yapay zeka, belgeyi incelerken doğrulanmış herhangi bir harici kaynak, kitap veya veri tabanı verisi tespit edemedi.</p>
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center bg-[var(--ota-bg-2)] rounded-xl opacity-70">
+        <span className="text-[var(--ota-gold)] mb-3 opacity-50"><BookCopy className="w-10 h-10 text-current" /></span>
+        <h3 className="text-base font-semibold text-[var(--ota-text)] mb-1">Kaynak Bulunamadı</h3>
+        <p className="text-xs text-[var(--ota-text-muted)] max-w-[250px]">Yapay zeka, belgeyi incelerken doğrulanmış herhangi bir harici kaynak, kitap veya veri tabanı verisi tespit edemedi.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 h-full overflow-y-auto custom-scrollbar bg-slate-900/50">
+    <div className="flex flex-col h-full bg-[var(--ota-bg)]">
       
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xl font-bold text-slate-100">Yapay Zeka Referans Kaynakları</h3>
-          <span className="bg-amber-500/20 text-amber-500 px-3 py-1 rounded-full text-sm font-semibold border border-amber-500/30">
-            {sources.length} Kaynak
+      {/* Header & Controls */}
+      <div className="p-4 border-b border-[var(--ota-border)] shrink-0 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-bold text-[var(--ota-text)]">Yapay Zeka Referans Kaynakları</h3>
+          <span className="bg-[var(--ota-gold)]/10 text-[var(--ota-gold)] px-2 py-0.5 rounded text-[10px] font-bold border border-[var(--ota-gold)]/30 uppercase tracking-wide">
+            {baseSources.length} Kaynak
           </span>
         </div>
-        <p className="text-sm text-slate-400">
-          Bu analiz hazırlanırken yapay zekanın kullandığı ve doğruladığı akademik metinler, veri tabanları ve harici bilgiler. 
-          Araştırmalarınızda kullanmak için referansları kopyalayabilirsiniz.
-        </p>
+
+        {/* Filters Row */}
+        <div className="flex flex-col md:flex-row gap-2 text-xs">
+          <input 
+            type="text" 
+            placeholder="Kaynaklarda ara..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-[var(--ota-bg-2)] border border-[var(--ota-border)] rounded-md px-3 py-1.5 text-[var(--ota-text)] placeholder:text-[var(--ota-text-muted)] outline-none focus:border-[var(--ota-gold)]/50 transition-colors"
+          />
+          <select 
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="bg-[var(--ota-bg-2)] border border-[var(--ota-border)] rounded-md px-2 py-1.5 text-[var(--ota-text)] outline-none focus:border-[var(--ota-gold)]/50 cursor-pointer"
+          >
+            <option value="all">Tüm Türler</option>
+            {sourceTypes.map(t => <option key={t} value={t}>{t}</option>)}
+          </select>
+          <select 
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="bg-[var(--ota-bg-2)] border border-[var(--ota-border)] rounded-md px-2 py-1.5 text-[var(--ota-text)] outline-none focus:border-[var(--ota-gold)]/50 cursor-pointer shrink-0"
+          >
+            <option value="relevance">İlgililik (Önce Yüksek)</option>
+            <option value="title">İsim (A-Z)</option>
+          </select>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-6">
-        {sources.map((source) => {
+      {/* List */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-3">
+        {sources.length === 0 ? (
+           <div className="text-center p-6 text-[var(--ota-text-muted)] text-xs">Filtrelere uygun kaynak bulunamadı.</div>
+        ) : sources.map((source) => {
           const isVerified = source.isVerified;
           
           return (
-            <div key={source.id} className="bg-slate-800/80 border border-slate-700 hover:border-amber-500/30 rounded-2xl p-5 shadow-lg transition-all">
+            <div key={source.id} className="bg-[var(--ota-bg-2)]/50 border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/40 rounded-lg p-3 shadow-sm transition-all flex flex-col gap-2">
               
-              {/* Başlık ve Durum Rozeti */}
-              <div className="flex justify-between items-start mb-4 gap-4">
-                <h4 className="text-lg font-semibold text-slate-200 leading-snug flex items-start gap-2">
-                  <span className="mt-0.5 text-amber-500">📖</span>
-                  <span>{source.title}</span>
+              <div className="flex justify-between items-start gap-3">
+                <h4 className="text-sm font-semibold text-[var(--ota-text)] leading-tight truncate flex-1" title={source.title}>
+                  {source.title}
                 </h4>
-                
-                <span className={`shrink-0 px-2.5 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide border ${
-                  isVerified 
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" 
-                    : "bg-slate-700 text-slate-400 border-slate-600"
-                }`}>
-                  {isVerified ? "✓ Doğrulandı" : "Doğrulanmamış"}
-                </span>
+                {isVerified && (
+                  <span className="shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-[var(--ota-success)]/10 text-[var(--ota-success)] border border-[var(--ota-success)]/30">
+                    Doğrulandı
+                  </span>
+                )}
               </div>
 
-              {/* Meta Etiketleri */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="grid grid-cols-2 gap-2 text-[10px] mt-1">
                 {source.sourceType && (
-                  <span className="bg-slate-900/80 text-slate-300 px-2 py-1 rounded text-xs font-medium border border-slate-700/50 flex items-center gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                    Tür: {source.sourceType}
-                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[var(--ota-text-muted)] uppercase font-semibold">Tür</span>
+                    <span className="text-[var(--ota-text-2)] truncate" title={source.sourceType}>{source.sourceType}</span>
+                  </div>
                 )}
                 {source.relevance && (
-                  <span className="bg-slate-900/80 text-slate-300 px-2 py-1 rounded text-xs font-medium border border-slate-700/50 flex items-center gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-                    İlgililik: {source.relevance}
-                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[var(--ota-text-muted)] uppercase font-semibold">İlgililik</span>
+                    <span className="text-[var(--ota-gold)] font-medium">{source.relevance}</span>
+                  </div>
                 )}
               </div>
 
-              {/* Yapay Zekanın Desteklediği Bilgi (Quote) */}
               {source.claim && (
-                <div className="bg-slate-900/60 rounded-xl p-4 border-l-2 border-amber-500 mb-4">
-                  <span className="block text-xs font-semibold text-amber-500 uppercase tracking-wider mb-2">Desteklenen Tarihi Bilgi</span>
-                  <p className="text-sm text-slate-300 italic leading-relaxed">&ldquo;{source.claim}&rdquo;</p>
+                <div className="mt-1 flex flex-col gap-0.5">
+                  <span className="text-[9px] font-bold text-[var(--ota-text-muted)] uppercase tracking-wider">Desteklenen Bilgi</span>
+                  <p className="text-[11px] text-[var(--ota-text)]/90 italic leading-snug line-clamp-2" title={source.claim}>
+                    &ldquo;{source.claim}&rdquo;
+                  </p>
                 </div>
               )}
 
-              {/* Atıfı Kopyala Bölümü */}
+              {/* Actions */}
               {(source.citation || source.url) && (
-                <div className="mt-4 pt-4 border-t border-slate-700/50 flex flex-wrap justify-between items-center gap-4">
-                  {source.citation && (
-                    <div className="text-xs text-slate-500 truncate flex-1 font-mono min-w-[200px]" title={source.citation}>
-                      {source.citation}
-                    </div>
+                <div className="mt-2 pt-2 border-t border-[var(--ota-border)] flex items-center justify-end gap-2">
+                  {source.url && (
+                    <a
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--ota-bg)] border border-[var(--ota-border)] text-[var(--ota-iznik-turquoise)] hover:border-[var(--ota-iznik-turquoise)]/50 text-[10px] font-semibold transition-colors"
+                    >
+                      Kaynağı Gör
+                    </a>
                   )}
-                  
-                  <div className="flex items-center gap-2 shrink-0 ml-auto">
-                    {source.url && (
-                      <a
-                        href={source.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500/20"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                        Kaynağa Git
-                      </a>
-                    )}
-                    
-                    {source.citation && (
-                      <button
-                        type="button"
-                        onClick={() => copyCitation(source.id, source.citation!)}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          copiedId === source.id
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : "bg-slate-800 text-slate-300 border border-slate-600 hover:bg-slate-700 hover:text-white"
-                        }`}
-                      >
-                        {copiedId === source.id ? (
-                          <>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            Kopyalandı
-                          </>
-                        ) : (
-                          <>
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-                            Atıfı Kopyala
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
+                  {source.citation && (
+                    <button
+                      type="button"
+                      onClick={() => copyCitation(source.id, source.citation!)}
+                      className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] font-semibold transition-colors border ${
+                        copiedId === source.id
+                          ? "bg-[var(--ota-success)]/10 text-[var(--ota-success)] border-[var(--ota-success)]/30"
+                          : "bg-[var(--ota-bg)] text-[var(--ota-text-2)] border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 hover:text-[var(--ota-text)]"
+                      }`}
+                    >
+                      {copiedId === source.id ? "Kopyalandı" : "Atıfı Kopyala"}
+                    </button>
+                  )}
                 </div>
               )}
             </div>

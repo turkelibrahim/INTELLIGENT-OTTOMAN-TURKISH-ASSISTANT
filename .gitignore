@@ -37,3 +37,10 @@ scratch/
 yolov8n.pt
 osmanlica_egitim/
 "osmanl\304\261ca/"
+*.safetensors
+*.ckpt
+*.pth
+*.bin
+*.pdf
+
+.env.*

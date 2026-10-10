@@ -108,36 +108,46 @@ class StaticOCREngine:
 
 
 class StaticTransliterationEngine:
-    def transliterate_simple(self, text):
-        return "\n".join(f"latin-{index + 1}" for index, _ in enumerate(text.splitlines()))
+    def transliterate_academic_json(self, text):
+        return {
+            "duzeltilmis_okunus": "\n".join(f"latin-{index + 1}" for index, _ in enumerate(text.splitlines())),
+            "guven_skoru": 85.0
+        }
 
 
 class CountingStaticTransliterationEngine:
     def __init__(self):
         self.calls = 0
 
-    def transliterate_simple(self, text):
+    def transliterate_academic_json(self, text):
         self.calls += 1
-        return "\n".join(f"latin-{index + 1}" for index, _ in enumerate(text.splitlines()))
+        return {
+            "duzeltilmis_okunus": "\n".join(f"latin-{index + 1}" for index, _ in enumerate(text.splitlines())),
+            "guven_skoru": 85.0
+        }
 
 
 class FailingTransliterationEngine:
-    def transliterate_simple(self, text):
+    def transliterate_academic_json(self, text):
         raise RuntimeError("simulated transliteration provider outage")
 
 
 class StaticIntelligence:
-    def translate_to_modern_turkish(self, text):
-        return "\n".join(f"modern-{index + 1}" for index, _ in enumerate(text.splitlines()))
+    def translate_to_modern_turkish_json(self, text):
+        return {
+            "gunumuz_turkcesi": "\n".join(f"modern-{index + 1}" for index, _ in enumerate(text.splitlines()))
+        }
 
 
 class CountingStaticIntelligence:
     def __init__(self):
         self.calls = 0
 
-    def translate_to_modern_turkish(self, text):
+    def translate_to_modern_turkish_json(self, text):
         self.calls += 1
-        return "\n".join(f"modern-{index + 1}" for index, _ in enumerate(text.splitlines()))
+        return {
+            "gunumuz_turkcesi": "\n".join(f"modern-{index + 1}" for index, _ in enumerate(text.splitlines()))
+        }
 
 
 class StructuredLineProvider:
@@ -147,7 +157,7 @@ class StructuredLineProvider:
 
     def chat_json(self, messages, schema, *, temperature=0.1):
         user_content = messages[-1]["content"]
-        marker = "Input lines JSON:\n"
+        marker = "Aşağıdaki JSON dizisindeki her bir Osmanlıca satırı Türkçeye çevir:\n"
         payload = json.loads(user_content.split(marker, 1)[1])
         self.calls.append([item["line_id"] for item in payload])
         if self.fail_large_batches and len(payload) > 10:
@@ -170,7 +180,7 @@ class ProviderBackedFailingTransliterationEngine:
         self.provider = provider
         self.calls = 0
 
-    def transliterate_simple(self, text):
+    def transliterate_academic_json(self, text):
         self.calls += 1
         raise RuntimeError("per-line transliteration should not be called")
 
@@ -180,9 +190,13 @@ class ProviderBackedFailingIntelligence:
         self.provider = provider
         self.calls = 0
 
-    def translate_to_modern_turkish(self, text):
+    def translate_to_modern_turkish_json(self, text):
         self.calls += 1
         raise RuntimeError("per-line modernization should not be called")
+
+    def transliterate_text(self, text):
+        self.calls += 1
+        raise RuntimeError("per-line transliteration fallback should not be called")
 
 
 def _test_user() -> User:
@@ -240,16 +254,17 @@ def test_historical_evidence_filters_unverified_and_derived_relation_candidates(
     assert evidence[0]["retrieval_score"] == 12.0
 
 
-def test_empty_historical_evidence_returns_structured_uncertainty():
+@pytest.mark.asyncio
+async def test_empty_historical_evidence_returns_structured_uncertainty():
     pipeline = DocumentAnalysisPipeline.__new__(DocumentAnalysisPipeline)
     pipeline.historical_store = EmptyHistoricalStore()
 
     evidence = pipeline._retrieve_verified_historical_evidence("no evidence query")
-    analysis = pipeline._historical_analysis(evidence, {"institutions": []})
+    analysis = await pipeline._historical_analysis(evidence, {"institutions": []})
 
     assert evidence == []
     assert analysis["possible_period"] == "Tespit edilemedi"
-    assert analysis["historical_context"] == "Tespit edilemedi"
+    assert analysis["historical_context"] == "Belge içeriği yeterince çözümlenemediği veya günümüz Türkçesine aktarılamadığı için yapay zeka destekli tarihsel analiz yapılamamıştır."
     assert analysis["confidence"] == 0.0
 
 
@@ -546,3 +561,49 @@ def test_analyze_full_endpoint_with_real_upload_real_ocr_ollama_and_qdrant(clien
         assert "retrieval_score" in item
         assert item["evidence_text"] is not None
     assert payload["confidence"]["combined_provisional"] is True
+
+
+def test_analyze_document_logger_scope_no_unbound_local_error():
+    """
+    Regression test for logger scope bug.
+    Ensures analyze_document() doesn't throw UnboundLocalError when logger is used
+    before any local assignment (which would make it a local variable in Python scope).
+    """
+    import ast
+    import pathlib
+
+    # Read the source file and parse AST
+    source_path = pathlib.Path("app/services/document_analysis_pipeline.py")
+    source = source_path.read_text(encoding="utf-8")
+    tree = ast.parse(source)
+
+    # Find the DocumentAnalysisPipeline class and its analyze_document method
+    analyze_func = None
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef) and node.name == "DocumentAnalysisPipeline":
+            for item in node.body:
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name == "analyze_document":
+                    analyze_func = item
+                    break
+            break
+
+    assert analyze_func is not None, "analyze_document method not found in DocumentAnalysisPipeline"
+
+    # Check for local logger assignments within analyze_document
+    logger_assignments = []
+    for node in ast.walk(analyze_func):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == "logger":
+                    logger_assignments.append(node.lineno)
+
+    # This test will FAIL if there are any local logger assignments
+    # (which would cause UnboundLocalError for earlier uses of logger)
+    assert logger_assignments == [], (
+        f"Found local 'logger' assignments in analyze_document at lines {logger_assignments}. "
+        "This causes UnboundLocalError for logger uses before assignment. "
+        "Remove local assignments and use module-level logger instead."
+    )
+
+    # Verify module-level logger exists
+    assert "logger = logging.getLogger(__name__)" in source, "Module-level logger not found"

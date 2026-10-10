@@ -80,6 +80,11 @@ class ConfidenceInfo(BaseModel):
     combined_provisional: bool = True
 
 
+class AIRouteInfo(BaseModel):
+    primary: str = "local"
+    verification: Optional[str] = None
+    second_opinion: Optional[bool] = None
+
 class FullDocumentAnalysisResponse(BaseModel):
     document: DocumentAnalysisDocument
     image_processing: ImageProcessingInfo
@@ -92,3 +97,8 @@ class FullDocumentAnalysisResponse(BaseModel):
     confidence: ConfidenceInfo
     uncertainties: List[str] = Field(default_factory=list)
     warnings: List[str] = Field(default_factory=list)
+    verification_status: str = "local"
+    ai_route: Optional[AIRouteInfo] = None
+    cache_hit: bool = False
+    models_used: List[str] = Field(default_factory=list)
+    system_confidence: float = 0.0

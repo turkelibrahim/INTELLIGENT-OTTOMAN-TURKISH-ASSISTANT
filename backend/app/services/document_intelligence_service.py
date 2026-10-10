@@ -49,7 +49,8 @@ class DocIntelligenceEngine:
             "1. ASLA 'Verilen metin...', 'Çeviri yapılamamıştır...', 'Metinde sadece...', 'Osmanlıca belge içermediği için...' gibi robotik asistan açıklamaları veya bahaneler YAZMA. Sadece doğrudan metnin Türkçe anlamını yaz.\n"
             "2. Eğer metin sadece sayılardan/tarihten/numaradan ibaretse: '[Belge Kayıt No / Tarih İbaresi]' yaz.\n"
             "3. Eğer metinde bozuk parantezler, OCR gürültüleri varsa, bunları temizle ve anlamlı, akıcı bir Türkçe cümle kur.\n"
-            "4. Format: Yalnızca JSON formatında 'gunumuz_turkcesi' alanında cevabı ver.\n\n"
+            "4. SATIR KORUMA: Kaynak metindeki satır sayılarını ve satır sonlarını (line breaks) BİREBİR KORU. Asla satırları birleştirip tek bir paragraf yapma.\n"
+            "5. Format: Yalnızca JSON formatında 'gunumuz_turkcesi' alanında cevabı ver.\n\n"
             "KAYNAK METİN: {text}\n"
         )
 
@@ -470,11 +471,15 @@ class DocIntelligenceEngine:
         if external_context:
             user_prompt += f"\n\nDış Tarihi Bilgi:\n{external_context}"
             
-        result = self._call_llm(
-            prompt=user_prompt,
-            text=document_context,
-            mode="chat"
-        )
+        try:
+            result = self._call_llm(
+                prompt=user_prompt,
+                text=document_context,
+                mode="chat"
+            )
+        except Exception as e:
+            logger.error("LLM error in answer_question: %s", e)
+            return "Asistan bağlantısı şu anda kullanılamıyor (LLM Sunucusuna ulaşılamadı)."
         
         if not result or result.strip() == "":
             return "Bu bilgi yüklenen belgede bulunamadı."

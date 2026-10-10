@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15 http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15/pagecontent.xsd">
+    <Metadata>
+        <Creator>Ottoman_Assistant_Canonical_Export</Creator>
+        <Created>2026-08-04T22:13:29.324070</Created>
+        <LastChange>2026-08-04T22:13:29.324070</LastChange>
+    </Metadata>
+    <Page imageFilename="../../images/page_001.png" imageWidth="2550" imageHeight="3300">
+        <TextRegion id="region_0">
+            <Coords points="0,0 2550,0 2550,3300 0,3300"/>
+
+            <TextLine id="line_1">
+                <Coords points="620,486 2460,486 2460,573 620,573"/>
+                <Baseline points="620,486 2460,486 2460,573 620,573"/>
+                <TextEquiv>
+                    <Unicode>ياپدى گورديكم جنگله الماز قريشسنده قيلوجه طرفندن بر</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_2">
+                <Coords points="620,589 2460,589 2460,675 620,675"/>
+                <Baseline points="620,589 2460,589 2460,675 620,675"/>
+                <TextEquiv>
+                    <Unicode>حواله ياپدى قرداش اوغلى اق تيمورى اوزرنده قودى غايت</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_3">
+                <Coords points="620,689 2460,689 2460,782 620,782"/>
+                <Baseline points="620,689 2460,689 2460,782 620,782"/>
+                <TextEquiv>
+                    <Unicode>بهادرلردن ايدى اكا برار يولداشلر قوشدى طاغ طرفندن</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_4">
+                <Coords points="620,794 2460,794 2460,883 620,883"/>
+                <Baseline points="620,794 2460,794 2460,883 620,883"/>
+                <TextEquiv>
+                    <Unicode>دخى بر حواله ياپدى بيله‌جق درلردى بر بهادر قولى وار ايدى</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_5">
+                <Coords points="620,888 2460,888 2460,978 620,978"/>
+                <Baseline points="620,888 2460,888 2460,978 620,978"/>
+                <TextEquiv>
+                    <Unicode>انده قودى بو ايكى حواله بر يلده ياپديلر بوروسه اگر تدبير</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_6">
+                <Coords points="620,992 2460,992 2460,1077 620,1077"/>
+                <Baseline points="620,992 2460,992 2460,1077 620,1077"/>
+                <TextEquiv>
+                    <Unicode>حصاردن طشره كشى چقارتمز اولديلر ايلنى هب الديلر حصار</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_7">
+                <Coords points="620,1096 2460,1096 2460,1179 620,1179"/>
+                <Baseline points="620,1096 2460,1096 2460,1179 620,1179"/>
+                <TextEquiv>
+                    <Unicode>يالكوز قالدى اوزرنه حواله اولديلر بونلر بونده عثمان غازى</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_8">
+                <Coords points="620,1186 2460,1186 2460,1282 620,1282"/>
+                <Baseline points="620,1186 2460,1186 2460,1282 620,1282"/>
+                <TextEquiv>
+                    <Unicode>كلدى يكى شهرده قرار قلدى اطرافك كافرلرى كلديلر</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_9">
+                <Coords points="620,1297 2460,1297 2460,1380 620,1380"/>
+                <Baseline points="620,1297 2460,1297 2460,1380 620,1380"/>
+                <TextEquiv>
+                    <Unicode>غازيلره اطاعت ايتديلر فرصت غازيلرك اولوب اول ولايتى</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_10">
+                <Coords points="620,1399 2460,1399 2460,1480 620,1480"/>
+                <Baseline points="620,1399 2460,1399 2460,1480 620,1480"/>
+                <TextEquiv>
+                    <Unicode>ضبط ايتديلر غازيلر عدل و انصاف ايتديلر اول ولايتى معمور</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_11">
+                <Coords points="620,1501 2460,1501 2460,1588 620,1588"/>
+                <Baseline points="620,1501 2460,1501 2460,1588 620,1588"/>
+                <TextEquiv>
+                    <Unicode>ايتديلر غنيمت ماليه غنى اولديلر عثمان غازى اوغلى اورخانى</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_12">
+                <Coords points="620,1601 2460,1601 2460,1687 620,1687"/>
+                <Baseline points="620,1601 2460,1601 2460,1687 620,1687"/>
+                <TextEquiv>
+                    <Unicode>بروسه قاتنه گوندردى كوسه ميخالى و طورغود الب بله قو-</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_13">
+                <Coords points="620,1705 2460,1705 2460,1787 620,1787"/>
+                <Baseline points="620,1705 2460,1705 2460,1787 620,1787"/>
+                <TextEquiv>
+                    <Unicode>شدى كفار عاجز قالمشدى بروسه اوزرنه عظيم جنگ ايتديلر</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_14">
+                <Coords points="620,1808 2460,1808 2460,1894 620,1894"/>
+                <Baseline points="620,1808 2460,1808 2460,1894 620,1894"/>
+                <TextEquiv>
+                    <Unicode>عاقبت بروسه تكورى اورخانله صلح ايدوب حصارى ويردى</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_15">
+                <Coords points="620,1901 2460,1901 2460,1993 620,1993"/>
+                <Baseline points="620,1901 2460,1901 2460,1993 620,1993"/>
+                <TextEquiv>
+                    <Unicode>عهد و يمانله تكوردن چقدى استنبوله كيتدى اوغلى قزيه</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_16">
+                <Coords points="620,2006 2460,2006 2460,2096 620,2096"/>
+                <Baseline points="620,2006 2460,2006 2460,2096 620,2096"/>
+                <TextEquiv>
+                    <Unicode>اورخان غازى بروسه فتح ايتدى هجرتك يدى يوز اون التی-</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_17">
+                <Coords points="620,2102 2460,2102 2460,2193 620,2193"/>
+                <Baseline points="620,2102 2460,2102 2460,2193 620,2193"/>
+                <TextEquiv>
+                    <Unicode>سنده اورخان غازى بروسه فتح ايتدكده عثمان حياتنده ايدى</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_18">
+                <Coords points="620,2203 2460,2203 2460,2292 620,2292"/>
+                <Baseline points="620,2203 2460,2203 2460,2292 620,2292"/>
+                <TextEquiv>
+                    <Unicode>اياغى اغردى زماننده بكلكى اورخانه اصمرلدى حق امرنه</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_19">
+                <Coords points="620,2306 2460,2306 2460,2391 620,2391"/>
+                <Baseline points="620,2306 2460,2306 2460,2391 620,2391"/>
+                <TextEquiv>
+                    <Unicode>واردى اوغلى اورخان غازى تخت جلوس قلدى هجرتك</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_20">
+                <Coords points="620,2409 2460,2409 2460,2493 620,2493"/>
+                <Baseline points="620,2409 2460,2409 2460,2493 620,2493"/>
+                <TextEquiv>
+                    <Unicode>يدى يوز يكرمى يديسنده عثمان غازى وصيت اتمشدى كم</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_21">
+                <Coords points="620,2508 2460,2508 2460,2598 620,2598"/>
+                <Baseline points="620,2508 2460,2508 2460,2598 620,2598"/>
+                <TextEquiv>
+                    <Unicode>بنى بروسده كومش قبه التنده قوك دشى بعضلر ايدر</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_22">
+                <Coords points="620,2611 2460,2611 2460,2695 620,2695"/>
+                <Baseline points="620,2611 2460,2611 2460,2695 620,2695"/>
+                <TextEquiv>
+                    <Unicode>سكوچكده دفن ايتديلر الله تعالى رحمتن زياده قلسون آمين</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="line_23">
+                <Coords points="620,2722 2460,2722 2460,2798 620,2798"/>
+                <Baseline points="620,2722 2460,2722 2460,2798 620,2798"/>
+                <TextEquiv>
+                    <Unicode>يا رب العالمين</Unicode>
+                </TextEquiv>
+            </TextLine>
+        </TextRegion>
+    </Page>
+</PcGts>

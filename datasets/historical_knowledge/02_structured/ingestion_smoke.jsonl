@@ -1,0 +1,2 @@
+﻿{"source_id":"TEST-A","chunk_id":"001","title":"Verified test source","text":"Bu yalnız corpus ingestion test kaydıdır.","source_type":"SMOKE_TEST","source_tier":"A","citation":"Internal ingestion test","aliases":[],"keywords":["test"],"verified":true}
+{"source_id":"TEST-B","chunk_id":"001","title":"Unverified test source","text":"Bu kayıt production RAG'e girmemelidir.","source_type":"SMOKE_TEST","source_tier":"C","citation":"Internal ingestion test","aliases":[],"keywords":["test"],"verified":false}

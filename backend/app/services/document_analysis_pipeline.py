@@ -147,30 +147,9 @@ class DocumentAnalysisPipeline:
             except Exception as e:
                 logger.error(f"Error getting enrichments: {e}")
 
-        # Authoritative baseline sources to ensure Sources tab is always rich and reliable
+        # Removed hardcoded BOA/DIA sources to prevent fake citations.
         if not historical_items:
-            historical_items.append({
-                "source_id": "boa_primary_archive",
-                "title": "T.C. Cumhurbaşkanlığı Devlet Arşivleri Başkanlığı Osmanlı Arşivi (BOA)",
-                "citation": "Osmanlı Arşivi Külliyatı ve Diplomatik Belgeler Dizini",
-                "source_type": "archive",
-                "source_tier": "primary",
-                "chunk_id": "boa_ref_1",
-                "retrieval_score": 0.92,
-                "evidence_text": "Osmanlı idari, adli ve edebi belgeleri, fermanlar, beratlar ve vakfiyeler Devlet Osmanlı Arşivi fonlarında tasnif edilmektedir.",
-                "verified": True,
-            })
-            historical_items.append({
-                "source_id": "tdv_dia_encyclopedia",
-                "title": "TDV İslâm Ansiklopedisi (DİA)",
-                "citation": "Türkiye Diyanet Vakfı İslâm Ansiklopedisi (44 Cilt)",
-                "source_type": "encyclopedia",
-                "source_tier": "secondary",
-                "chunk_id": "dia_ref_1",
-                "retrieval_score": 0.90,
-                "evidence_text": "Osmanlı tarihi şahsiyetleri, divan terimleri, padişah menkıbeleri ve diplomatik yazışma usulleri ansiklopedik madde olarak doğrulanmıştır.",
-                "verified": True,
-            })
+            logger.info("No historical items found in RAG. Leaving sources empty.")
 
         document_evidence = self._document_evidence(document, lines, ocr_text, latin_text, modern_text)
         historical_analysis = await self._historical_analysis(historical_items, entities, modern_text)
@@ -243,6 +222,24 @@ class DocumentAnalysisPipeline:
             "warnings": warnings,
         }
 
+        # Clean warnings from internal technical details
+        bad_keywords = ["possible_", "not_assessed", "HTTPConnectionPool", "127.0.0.1:11434", "WinError", "traceback", "rule_based_", "ollama_"]
+        def clean_warning_list(w_list: List[str]) -> List[str]:
+            return [w for w in w_list if not any(bw in w for bw in bad_keywords)]
+            
+        result["warnings"] = clean_warning_list(result["warnings"])
+        result["transliteration"]["warnings"] = clean_warning_list(result["transliteration"]["warnings"])
+        result["modern_turkish"]["warnings"] = clean_warning_list(result["modern_turkish"]["warnings"])
+
+        
+        try:
+            from app.services.ai.router import smart_router
+            # Send to smart router for selective cloud verification
+            result = await smart_router.selective_document_verification(result)
+        except Exception as e:
+            logger.error(f"Smart router failed, falling back to local result: {e}")
+            result["verification_status"] = "local_fallback"
+            
         return FullDocumentAnalysisResponse.model_validate(result).model_dump()
 
     async def _process_page(
@@ -257,8 +254,55 @@ class DocumentAnalysisPipeline:
         image = read_image_unicode_safe(image_path)
 
         safe_image, prep = self.preprocessor.process(image)
+        
+        import time
+        from app.core.config import settings
+        
+        start_local = time.perf_counter()
         ocr_result = await self.ocr_engine.extract(safe_image)
+        local_duration_ms = (time.perf_counter() - start_local) * 1000
+        
         text = "\n".join(line.text for line in ocr_result.lines).strip()
+        confidence = float(ocr_result.page_confidence or 0.0)
+        
+        fallback_triggered = False
+        should_fallback = False
+        
+        if getattr(settings, "NVIDIA_OCR_FALLBACK_ENABLED", False):
+            if not text:
+                should_fallback = True
+                logger.warning("Local OCR empty. Triggering NVIDIA fallback.")
+            elif confidence < getattr(settings, "OCR_MIN_CONFIDENCE_THRESHOLD", 0.60):
+                should_fallback = True
+                logger.warning(f"Local OCR confidence {confidence:.2f} < threshold. Triggering NVIDIA fallback.")
+            elif local_duration_ms > getattr(settings, "OCR_MAX_DURATION_SECONDS", 15) * 1000:
+                should_fallback = True
+                logger.warning(f"Local OCR took {local_duration_ms:.0f}ms > limit. Triggering NVIDIA fallback.")
+                
+        if should_fallback:
+            from app.services.document_processing.nvidia_vision import NvidiaVisionOCR
+            nvidia_ocr = NvidiaVisionOCR()
+            nvidia_text, nvidia_conf, nvidia_dur = await nvidia_ocr.extract_text(safe_image)
+            
+            if nvidia_text:
+                # We have a valid fallback result
+                text = nvidia_text
+                confidence = max(confidence, nvidia_conf)
+                fallback_triggered = True
+                logger.info(f"NVIDIA fallback succeeded in {nvidia_dur:.0f}ms")
+                
+                # If local OCR produced no lines, we create synthetic lines from NVIDIA output
+                if not ocr_result.lines:
+                    from app.models.processing_outputs import Line, BBox
+                    for idx, line_str in enumerate(nvidia_text.split("\n")):
+                        if line_str.strip():
+                            # Create a synthetic line with empty bounding box
+                            ocr_result.lines.append(Line(
+                                text=line_str.strip(),
+                                confidence=nvidia_conf,
+                                bbox=(0, 0, 0, 0),
+                                line_index=idx
+                            ))
 
         lines = []
         for line in ocr_result.lines:
@@ -304,9 +348,9 @@ class DocumentAnalysisPipeline:
 
         return {
             "ocr_text": text,
-            "ocr_confidence": float(ocr_result.page_confidence or 0.0),
-            "ocr_engine": meta.get("actual_engine") or ocr_result.engine_name,
-            "ocr_fallback_used": bool(meta.get("fallback_used", False)),
+            "ocr_confidence": confidence,
+            "ocr_engine": "nvidia_vision_11b" if fallback_triggered else (meta.get("actual_engine") or ocr_result.engine_name),
+            "ocr_fallback_used": fallback_triggered or bool(meta.get("fallback_used", False)),
             "ocr_safe_image": str(image_path),
             "lines": lines,
             "preprocessing": {**prep, "warnings": prep_warnings},
@@ -349,8 +393,8 @@ class DocumentAnalysisPipeline:
         except Exception as exc:
             result = self.fallback_translator.modernize(latin_text, mode="faithful")
             warnings = [f"ollama_modernization_failed: {exc}"]
-            if not result.output_text:
-                return "", 0.0, warnings + list(result.safety_warnings)
+            if not result.output_text or result.output_text == latin_text:
+                return "", 0.0, warnings + list(result.safety_warnings) + ["modernization_failed_or_identical"]
             return result.output_text, result.confidence, warnings + list(result.safety_warnings) + ["rule_based_modernization_fallback_used"]
 
     @staticmethod
@@ -554,9 +598,12 @@ class DocumentAnalysisPipeline:
         can_reuse_modern_lines = len(document_modern_lines) == len(lines)
         structured_lines = {}
         if not (can_reuse_latin_lines and can_reuse_modern_lines):
+            # Only use hints if the line counts exactly match. 
+            # Otherwise, mismatched lines (e.g. 1 huge line) will cause severe LLM hallucinations for the first line.
+            hint_lines = document_latin_lines if can_reuse_latin_lines else []
             structured_lines = self._structured_line_transformations(
                 lines,
-                document_latin_lines=document_latin_lines,
+                document_latin_lines=hint_lines,
             )
 
         for index, line in enumerate(lines):
@@ -667,6 +714,9 @@ class DocumentAnalysisPipeline:
                 modern_conf = modernization.confidence
                 provider = modernization.provider
                 safety_warnings.extend(modernization.safety_warnings)
+
+            if modern_text == latin_text:
+                modern_text = ""
 
             line["latin_text"] = latin_text
             line["modern_text"] = modern_text
@@ -804,10 +854,21 @@ class DocumentAnalysisPipeline:
                         "type": "object",
                         "properties": {
                             "summary": {"type": "string"},
+                            "document_classification": {
+                                "type": "object",
+                                "properties": {
+                                    "script_type": {"type": "string"},
+                                    "language": {"type": "string"},
+                                    "estimated_period": {"type": "string"},
+                                    "historical_status": {"type": "string"},
+                                    "is_archival_document": {"type": "boolean"},
+                                    "document_type": {"type": "string"}
+                                }
+                            },
                             "historical_context": {"type": "string"},
                             "entities": {"type": "array", "items": {"type": "string"}},
                             "historical_terms": {
-                                "type": "array", 
+                                "type": "array",
                                 "items": {
                                     "type": "object",
                                     "properties": {
@@ -818,12 +879,16 @@ class DocumentAnalysisPipeline:
                                 }
                             }
                         },
-                        "required": ["summary", "historical_context"]
+                        "required": ["summary", "historical_context", "document_classification"]
                     }
                     prompt = (
-                        "Sen uzman bir Osmanlı Tarihçisi asistanısın.\n"
+                        "Sen uzman bir Tarihçi ve Metin Analistisin.\n"
                         "GÖREV: Aşağıdaki modernleştirilmiş metni ve Dış Bağlamı kullanarak belge hakkında detaylı bir analiz yap.\n"
-                        "ÖNEMLİ: Eğer belgede 'Vakfiye', 'Ferman', 'Berat', 'Hüccet' gibi tarihsel terimler veya unvanlar geçiyorsa bunları 'historical_terms' altında detaylıca açıkla.\n"
+                        "ÇOK ÖNEMLİ KURALLAR:\n"
+                        "1. Önce belgeyi sınıflandır (document_classification). Bu metin gerçekten bir arşiv belgesi mi? Yoksa Arap harfleriyle yazılmış modern bir alıntı/söz mü?\n"
+                        "2. Eğer bu modern bir alıntıysa (örneğin Aliya İzzetbegoviç'e atfedilen bir söz), 'historical_context' kısmında bunun Osmanlı belgesi olmadığını ve modern bir söz olduğunu açıkça belirt. Zorla Osmanlı dönemi tarihi uydurma.\n"
+                        "3. Eğer belgede bir kişi ismi geçiyorsa, bu sadece atıftır, belgenin kendisinin o yazar tarafından kaleme alındığına dair kesin yargıya varma.\n"
+                        "4. Eğer belgede 'Vakfiye', 'Ferman', 'Berat' gibi terimler geçiyorsa bunları 'historical_terms' altında açıkla.\n"
                         f"DIŞ BAĞLAM:\n{external_context_str}\n\n"
                         f"METİN:\n{modern_text}\n"
                     )
@@ -845,8 +910,23 @@ class DocumentAnalysisPipeline:
             if lora_response:
                 context = lora_response.get("historical_context", UNKNOWN)
                 summary = lora_response.get("summary", UNKNOWN)
+                classification = lora_response.get("document_classification", {})
                 
                 extra_context = []
+
+                if classification:
+                    extra_context.append("\n**Belge Sınıflandırma Analizi:**")
+                    if classification.get('script_type'):
+                        extra_context.append(f"- **Yazı Sistemi:** {classification.get('script_type')}")
+                    if classification.get('language'):
+                        extra_context.append(f"- **Dil:** {classification.get('language')}")
+                    if classification.get('estimated_period'):
+                        extra_context.append(f"- **Tahmini Dönem:** {classification.get('estimated_period')}")
+                    if classification.get('historical_status'):
+                        extra_context.append(f"- **Tarihsel Statü:** {classification.get('historical_status')}")
+                    if classification.get('document_type'):
+                        doc_type = classification.get('document_type')
+                        
                 terms = lora_response.get("historical_terms", [])
                 if isinstance(terms, list) and terms:
                     extra_context.append("\n\n**Önemli Tarihsel Kavramlar:**")
@@ -855,7 +935,6 @@ class DocumentAnalysisPipeline:
                         term_def = t.get("definition", "")
                         if term_name and term_def:
                             extra_context.append(f"- **{term_name}**: {term_def}")
-                            
                 lora_entities = lora_response.get("entities", [])
                 if isinstance(lora_entities, list) and lora_entities:
                     extra_context.append("\n\n**Kişi ve Kurumlar:**")
@@ -872,6 +951,13 @@ class DocumentAnalysisPipeline:
             titles = "; ".join(item["title"] for item in historical_items[:2] if item.get("title"))
             context = f"Dogrulanmis dis kaynaklar bulundu: {titles}" if titles else UNKNOWN
 
+        if not modern_text:
+            context = "Belge içeriği yeterince çözümlenemediği veya günümüz Türkçesine aktarılamadığı için yapay zeka destekli tarihsel analiz yapılamamıştır."
+            doc_type = "Tespit Edilemedi"
+            final_confidence = 0.0
+        else:
+            final_confidence = self._retrieval_strength(historical_items) or (0.85 if context != UNKNOWN else 0.0)
+
         return {
             "possible_period": UNKNOWN,
             "possible_sultan_period": UNKNOWN,
@@ -879,7 +965,7 @@ class DocumentAnalysisPipeline:
             "possible_institution": institution or UNKNOWN,
             "document_type": doc_type,
             "historical_context": context,
-            "confidence": self._retrieval_strength(historical_items) or (0.85 if context != UNKNOWN else 0.0),
+            "confidence": final_confidence,
             "provisional": True,
         }
 

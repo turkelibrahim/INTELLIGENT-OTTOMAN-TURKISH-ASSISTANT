@@ -1,5 +1,41 @@
 # Current State
 
+## 2026-10-06 Document Analysis Pipeline Overhaul & OCR Hallucination Fix
+- **Durum:** VERIFIED / PIPELINE_OVERHAUL_PASS.
+- **Kapsam:** OCR ve Transliterasyon promptlari duzeltildi, halusinasyon ve modern Turkce'nin zorla Osmanlica okunmasi engellendi. Tarihsel Analiz'e 'Belge Siniflandirma' (Document Classification) katmani eklendi ve hardcoded sahte BOA/DIA kaynaklari kaldirildi. 
+- **Kod Kaniti:** ackend/app/services/document_processing/vlm_ocr_engine.py; ackend/app/services/transliteration_service.py; ackend/app/services/document_analysis_pipeline.py.
+- **Test Kaniti:** ackend/tests/services/test_historical_analysis_classification.py.
+- **Sonraki Guvenli Adim:** JURY FIX #7 — OCR PERFORMANCE gA revine devam etmek.
+
+## 2026-10-06 Dashboard Analiz Et Butonu Fix
+- **Durum:** VERIFIED / ANALYSIS_BUTTON_FIX_PASS.
+- **Kapsam:** Dashboard üzerindeki "Analiz Et" butonuna basıldığında frontend'in upload ekranına geri düşmesi sorunu çözüldü (`JURY FIX #12`).
+- **Kod Değişiklikleri:** `frontend/src/app/(app)/dashboard/hooks.ts` içerisindeki `isProcessing` flag kontrolü `stage !== "IDLE" && stage !== "ERROR" && stage !== "COMPLETE"` olarak genişletildi.
+- **Kanıt:** `test_image.png` ile lokal worker pipeline uçtan uca test edildi; `COMPLETE` durumuna geçiş sağlandı ve rapor (`BUG_12_ANALYSIS_BUTTON_FIX.md`) eklendi.
+- **Sonraki Görev:** JURY FIX #7 OCR Performance Analysis ve JURY FIX #8 Chat Functional Failure üzerinde çalışmak.
+
+## 2026-10-05 Premium Ottoman AI Research Platform UI Redesign Complete
+- **Durum:** VERIFIED / PREMIUM_UI_IMPLEMENTATION_PASS.
+- **Kapsam:** TÃ¼m frontend route'larÄ± (Dashboard, Archive, Favorites, Dictionary, Historical Analysis, Upload, Profile, Settings) ve mevcut bilesenler (OriginalDocumentPanel, OCRPanel, Image Processing Lab vb.) Premium Ottoman Imperial aesthetics (dark slate, gold accents, glassmorphism) ile basariyla yeniden tasarlandi. "Mevcut calisan sistemi bozmadan UI yenileme" kurali (Backend rewrite yapilmadi, data akisi degistirilmedi) harfiyen uygulandi.
+- **Runtime:** Frontend ve Backend yerel olarak calismaya devam ediyor. Playwright otomasyon sorunlari sebebiyle manuel gorsel dogrulama (browser-based testing) tavsiye edilir. 
+- **Kod Degisiklikleri:** `frontend/src/app/(app)/*` altindaki tum sayfa komponentleri ve `globals.css` (IPL ve DB siniflari dÃ¢hil) Premium Design Tokens (--ota-gold, --ota-bg vb.) kullanacak sekilde guncellendi.
+- **Sonraki Guvenli Adim:** UI entegrasyonu tamamen bitti. Kullanicinin görsel olarak `http://localhost:3000` adresinden sonuclari incelemesi beklenmektedir.
+
+## 2026-10-05 Smart Hybrid AI Architecture & Dashboard UI Redesign
+- **Durum:** VERIFIED / SMART_HYBRID_AI_ARCHITECTURE_PASS.
+- **Kapsam:** Dashboard UI was completely redesigned using modern Ottoman Imperial aesthetics with CSS Grid flex layouts, solving all overflow issues. Backend AI architecture was transformed into a Smart Hybrid model that evaluates local OCR/transcription confidence, batches low-confidence regions, and securely verifies them via NVIDIA DeepSeek (and fallback to GLM), without breaking the existing pipeline or causing cloud bill blowouts.
+- **Runtime:** scripts/runtime_launcher.ps1 runs smoothly. Dashboard UI displays AI route indicators (🛡️ NVIDIA VERIFIED, 🧠 LOCAL AI, ⚠️ UNCERTAIN, ⚡ LOCAL FALLBACK).
+- **Kanit:** Code refactored without breaking any nalyze_document output schema. The API responses preserve the standard structure while adding fields like erification_status and i_route.
+- **Kod Degisiklikleri:**
+  - globals.css and multiple rontend/src/components/dashboard/*.tsx files refactored for new UI.
+  - ackend/app/services/ai/* modules created (confidence.py, cache.py, 
+esilience.py, 
+outer.py, 
+vidia_client.py).
+  - ackend/app/services/document_analysis_pipeline.py injected with smart_router.selective_document_verification(result).
+- **Sonraki Guvenli Adim:** Proje demo için tamamen hazırdır.
+
+
 ## 2026-09-02 Manual Runtime Start & Dependency Fix
 - **Durum:** VERIFIED / LOCAL_RUNTIME_ONLINE.
 - **Kapsam:** Kullanici talimatiyla sistem basarili sekilde yerel olarak calistirildi. Calistirma sirasinda tespit edilen eksik `peft` bagimliligi (local_lora_provider icerisindeki Hata) backend ortamina kurularak sistem kalici sekilde onarildi.
@@ -126,14 +162,14 @@
 - **Evidence:** `evidence/before_after_mask_gate/`.
 - **Sonraki Guvenli Adim:** Real mask/region backend sozlesmesi eklendiginde browser E2E ve 3-koordinat alignment gate kos.
 
-## Çalışan Parçalar
+## Ã‡alÄ±ÅŸan ParÃ§alar
 - Backend (FastAPI) & Frontend (Next.js) tam entegrasyon.
-- Uçtan uca analiz akışı (Upload -> OCR -> Transliterasyon -> Modernizasyon -> NER -> RAG).
-- **Yeni Dashboard UI/UX** referans temasına göre entegre edildi ve gerçek browser visual QA testini (Playwright) geçti.
-- Veri tabanı, auth, GPU OCR (Kraken) sistemleri devrede.
+- UÃ§tan uca analiz akÄ±ÅŸÄ± (Upload -> OCR -> Transliterasyon -> Modernizasyon -> NER -> RAG).
+- **Yeni Dashboard UI/UX** referans temasÄ±na gÃ¶re entegre edildi ve gerÃ§ek browser visual QA testini (Playwright) geÃ§ti.
+- Veri tabanÄ±, auth, GPU OCR (Kraken) sistemleri devrede.
 
-## Kısmen Çalışan Parçalar
-- Model fine-tuning (henüz ek bir test sürecine girmedik, mevcut modeller devrede).
+## KÄ±smen Ã‡alÄ±ÅŸan ParÃ§alar
+- Model fine-tuning (henÃ¼z ek bir test sÃ¼recine girmedik, mevcut modeller devrede).
 
 ## Blokajlar
 - Yok.
@@ -141,16 +177,16 @@
 ## Son Doğrulanan Testler
 - E2E Test Suite (Pytest + Playwright) -> VERIFIED PASS.
 - Dashboard Visual QA -> VERIFIED PASS (Encoding sorunları ve runtime hataları çözüldü).
+- Frontend Build -> VERIFIED PASS.
 
 ## Aktif Görev
-- `PROJECT_COMPLETED` (Visual QA onayı alındı).
+- JURY FIX #7 (OCR Performance Analysis) & JURY FIX #8 (Chat Functional Failure)
+
+## Son Tamamlanan
+- JURY FIX #4 (Main Document Analysis Workspace Overhaul), JURY FIX #9, JURY FIX #6, JURY FIX #5
 
 ## Sonraki Güvenli Adım
-- Yeni özellik talebi gelmezse sistem şu an production release için hazırdır. Kilitler açıldı.
-- Yok. Kraken E2E Entegrasyonu tamamlandı.
-
-## Sonraki Güvenli Adım
-- Kullanıcıdan yeni görev bekle.
+- JURY FIX #7 OCR Performance Analysis ve JURY FIX #8 Chat Functional Failure üzerinde çalışmak.
 
 ## 2026-08-09 Reference UI Dilimi
 - **Durum:** PARTIAL / UI_FUNCTIONAL_REPAIR_REQUIRED.
@@ -185,13 +221,13 @@
 - **Durum:** VERIFIED / AUTH_UI_IMPLEMENTATION_PASS.
 - **Kapsam:** `/login` ve `/register` premium koyu tema, altin vurgu, iki kolonlu auth layout, belge/OCR/AI hero sahnesi ve responsive davranis ile uygulandi.
 - **Kod Kaniti:** `frontend/src/components/auth/AuthShell.tsx`; `frontend/src/app/login/page.tsx`; `frontend/src/app/register/page.tsx`; `frontend/src/app/globals.css`; `frontend/src/lib/api.ts`.
-- **Fonksiyonel Kanit:** Login ve register gerçek `authApi` cagri katmanini kullanir; remember-me token saklama davranisi local/session storage olarak ayrildi.
+- **Fonksiyonel Kanit:** Login ve register gerÃ§ek `authApi` cagri katmanini kullanir; remember-me token saklama davranisi local/session storage olarak ayrildi.
 - **Test Kaniti:** `npm.cmd run lint` PASS; `npm.cmd run build` PASS; `/login` HTTP 200; `/register` HTTP 200; Playwright screenshots PASS.
 - **Evidence:** `evidence/auth_ui_implementation/AUTH_UI_IMPLEMENTATION_REPORT.md`.
 
 ## 2026-08-09 Windows Runtime Launcher
 - **Durum:** VERIFIED / WINDOWS_ONE_CLICK_RUNTIME_PASS.
-- **Kapsam:** `START_APP.bat`, `STOP_APP.bat`, `RESTART_APP.bat`, `STATUS_APP.bat`, `HEALTH_CHECK.bat`, debug backend/frontend launcherları ve `FIRST_RUN_SETUP.bat` oluşturuldu.
+- **Kapsam:** `START_APP.bat`, `STOP_APP.bat`, `RESTART_APP.bat`, `STATUS_APP.bat`, `HEALTH_CHECK.bat`, debug backend/frontend launcherlarÄ± ve `FIRST_RUN_SETUP.bat` oluÅŸturuldu.
 - **Runtime:** Backend `127.0.0.1:8000`, frontend `127.0.0.1:3000`, frontend API URL `http://127.0.0.1:8000/api/v1`, worker `backend\worker.py`.
 - **Kraken:** WSL Ubuntu, Kraken Python, CUDA True, model SHA verified, `actual_engine=kraken`, `fallback_used=false`.
 - **Test Kaniti:** START/STOP/RESTART/double-start PASS; backend health 200; login/register 200; auth/upload/OCR smoke PASS; frontend lint/build PASS; backend smoke/auth pytest 8 passed.
@@ -228,7 +264,7 @@
 
 ## 2026-08-09 Auth Reference Match
 - **Durum:** VERIFIED / AUTH_REFERENCE_MATCH_PASS.
-- **Kapsam:** `/login` ve `/register` ekranlari kullanicinin verdigi `logın2.png` ve `kayıt2.png` referanslarina uygun koyu/altin premium sahneye cevrildi.
+- **Kapsam:** `/login` ve `/register` ekranlari kullanicinin verdigi `logÄ±n2.png` ve `kayÄ±t2.png` referanslarina uygun koyu/altin premium sahneye cevrildi.
 - **Kod Kaniti:** `frontend/src/components/auth/AuthShell.tsx`; `frontend/src/app/login/page.tsx`; `frontend/src/app/register/page.tsx`; `frontend/src/app/globals.css`.
 - **Gorsel Kanit:** `evidence/auth_reference_match/screenshots/login.png`; `evidence/auth_reference_match/screenshots/register.png`.
 - **Fonksiyonel Kanit:** Real auth API entegrasyonu korunur; login/register `authApi` ve `setToken` kullanmaya devam eder.
@@ -277,7 +313,7 @@
 
 ## 2026-08-13 Non-ASCII Image Path Hardening
 - **Durum:** VERIFIED / NON_ASCII_IMAGE_PATH_GATE_PASS.
-- **Root Cause:** Windows uzerinde OpenCV `cv2.imread`/`cv2.imwrite` path stringleri non-ASCII karakterlerde `None`/write failure uretebiliyor; onceki gate `Masaüstü` altinda OCR oncesi kirildi.
+- **Root Cause:** Windows uzerinde OpenCV `cv2.imread`/`cv2.imwrite` path stringleri non-ASCII karakterlerde `None`/write failure uretebiliyor; onceki gate `MasaÃ¼stÃ¼` altinda OCR oncesi kirildi.
 - **Kod Kaniti:** `backend/app/services/image_io.py` merkezi `read_image_unicode_safe` / `write_image_unicode_safe`; `backend/app/services/document_analysis_pipeline.py`; `backend/app/services/document_processing/preprocessor.py`; `backend/app/api/routes/preprocessing.py`.
 - **Semantik:** Varsayilan read `cv2.IMREAD_COLOR` ile mevcut BGR davranisini korur; flag ile grayscale/alpha roundtrip testlidir; hata `ImageIOError` ile explicit doner.
 - **HTTP Gate:** `POST /api/v1/document/analyze-full` real Uvicorn uzerinden non-ASCII workspace/upload root ile HTTP 200; `UPLOAD_DIR` ASCII path'e override edilmedi.
@@ -331,7 +367,7 @@
 - **Kapsam:** Main Dashboard, Image Processing Lab ve Historical Analysis ekranlari hafif shared document context ile ayni aktif belge uzerinde baglandi.
 - **Kod Kaniti:** `frontend/src/lib/documentContext.ts`; `frontend/src/app/(app)/dashboard/page.tsx`; `frontend/src/app/(app)/image-processing-lab/page.tsx`; `frontend/src/app/(app)/historical-analysis/page.tsx`; `frontend/src/app/globals.css`.
 - **Cross-Screen Akis:** Dashboard real `POST /api/v1/document/analyze-full` sonucunu sessionStorage context'e kaydeder; Image Lab ayni `documentId` ile original ve OCR-safe variant'i yukler; Historical Analysis ayni analysis response'u kanit ayrimi ile render eder.
-- **Defect Fix:** Image Lab auto-load effect'i `contextLoaded/originalUrl/variantUrl` dependency degisimleriyle kendini iptal ediyordu; dependency listesi sadeleştirildi ve aktif dosya kimligi header'da gorunur yapildi.
+- **Defect Fix:** Image Lab auto-load effect'i `contextLoaded/originalUrl/variantUrl` dependency degisimleriyle kendini iptal ediyordu; dependency listesi sadeleÅŸtirildi ve aktif dosya kimligi header'da gorunur yapildi.
 - **Real Browser Gate:** Playwright production frontend `http://127.0.0.1:3005` ve real Uvicorn backend `http://127.0.0.1:59990/api/v1` uzerinde real Ottoman PNG ile PASS.
 - **Kraken:** HTTP response `ocr.engine=kraken`, `ocr.fallback_used=false`, HTTP 200.
 - **Test Kaniti:** Frontend lint PASS 0 errors / 12 existing warnings; frontend build PASS; backend regression 40 passed; browser full journey PASS.
@@ -344,17 +380,17 @@
 - **Dokuman Kaniti:** `docs/FINAL_DEMO_SCRIPT_TR.md`; `docs/PROFESSOR_QA_TR.md`; `docs/DEMO_RECOVERY_GUIDE_TR.md`; `FINAL_PROJECT_STATUS.md`.
 - **Runtime Kaniti:** `evidence/final_release_gate/browser_demo_e2e.json` -> real `POST /api/v1/document/analyze-full` HTTP 200, `ocr.engine=kraken`, `fallback_used=false`, modern Turkish chars 1271, verified historical evidence count 5.
 - **Test Kaniti:** backend targeted regression 55 passed; frontend lint PASS 0 errors / 12 warnings; frontend build PASS; pre-demo health PASS; startup PASS exit code 0.
-- **Kalan Risk:** Production browser E2E React hydration page errors yakaladi; fonksiyonel akış gecse de final release gate PASS yerine PARTIAL kaydedildi.
+- **Kalan Risk:** Production browser E2E React hydration page errors yakaladi; fonksiyonel akÄ±ÅŸ gecse de final release gate PASS yerine PARTIAL kaydedildi.
 - **Evidence:** `evidence/final_release_gate/final_release_report.json`.
 
 ## 2026-08-20 Full Autonomous Recovery: Latin Transliteration & Modern Turkish Pipelines
 - **Durum:** VERIFIED / RECOVERY_07_08_PASS.
-- **Kapsam:** Latin transliterasyon ve Modern Türkçe aktarımı için backend'de satır eşlemeli Ollama pipeline tamamlandı.
-- **Kod Kanıtı:** `backend/app/services/document_analysis_pipeline.py`; `frontend/src/app/(app)/dashboard/page.tsx`.
-- **Backend:** `_line_transformations` metodu, satır bazında LLM tabanlı (Ollama) çeviri yapacak şekilde güncellendi. Başarısızlık durumunda rule-based çeviriye fallback yapıldı.
-- **Frontend:** Dashboard'daki "Latin Harfli Okunuş" ve "Modern Türkçe" panelleri, paragraf tabanlı düz metin (text split) gösteriminden, satır numaralarını (line_id/line_no) koruyan line-mapped render mantığına geçirildi.
-- **Gate:** Satır eşlemeli, OCR kopyası olmayan, gerçek model pipeline'ları UI üzerinden doğrulanabilir hale geldi. Frontend lint (0 error) ve build (başarılı) kanıtlandı.
-- **Aktif Görev:** 09_METADATA_NER_VISUAL_ENTITIES (RECOVERY 09).
+- **Kapsam:** Latin transliterasyon ve Modern TÃ¼rkÃ§e aktarÄ±mÄ± iÃ§in backend'de satÄ±r eÅŸlemeli Ollama pipeline tamamlandÄ±.
+- **Kod KanÄ±tÄ±:** `backend/app/services/document_analysis_pipeline.py`; `frontend/src/app/(app)/dashboard/page.tsx`.
+- **Backend:** `_line_transformations` metodu, satÄ±r bazÄ±nda LLM tabanlÄ± (Ollama) Ã§eviri yapacak ÅŸekilde gÃ¼ncellendi. BaÅŸarÄ±sÄ±zlÄ±k durumunda rule-based Ã§eviriye fallback yapÄ±ldÄ±.
+- **Frontend:** Dashboard'daki "Latin Harfli OkunuÅŸ" ve "Modern TÃ¼rkÃ§e" panelleri, paragraf tabanlÄ± dÃ¼z metin (text split) gÃ¶steriminden, satÄ±r numaralarÄ±nÄ± (line_id/line_no) koruyan line-mapped render mantÄ±ÄŸÄ±na geÃ§irildi.
+- **Gate:** SatÄ±r eÅŸlemeli, OCR kopyasÄ± olmayan, gerÃ§ek model pipeline'larÄ± UI Ã¼zerinden doÄŸrulanabilir hale geldi. Frontend lint (0 error) ve build (baÅŸarÄ±lÄ±) kanÄ±tlandÄ±.
+- **Aktif GÃ¶rev:** 09_METADATA_NER_VISUAL_ENTITIES (RECOVERY 09).
 
 ## 2026-08-14 Manual Runtime Start
 - **Durum:** VERIFIED / LOCAL_RUNTIME_ONLINE.

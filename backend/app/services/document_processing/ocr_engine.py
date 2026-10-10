@@ -445,25 +445,41 @@ class EasyOCREngine:
             "line_segmentation_strategy": "merged_rtl_lines",
         }
 
-    async def extract(self, image: np.ndarray) -> OCRPageResult:
+    async def extract(self, image: np.ndarray, detect_only: bool = False) -> OCRPageResult:
         start = time.perf_counter()
 
-        # EasyOCR returns word/phrase components. Q5 merges them into RTL line
-        # boxes without consulting ground truth.
-        results = self.reader.readtext(image, detail=1, paragraph=False, **self.Q5_READTEXT_CONFIG)
-
         components: List[BoxItem] = []
-        for idx, (bbox_points, text, conf) in enumerate(results):
-            xs = [float(p[0]) for p in bbox_points]
-            ys = [float(p[1]) for p in bbox_points]
-            components.append(
-                BoxItem(
-                    id=f"ocr_{idx:04d}",
-                    bbox=(min(xs), min(ys), max(xs), max(ys)),
-                    text=text.strip(),
-                    confidence=float(conf),
+        
+        if detect_only:
+            # ONLY use CRAFT detection to save time
+            horizontal_list, free_list = self.reader.detect(image)
+            if horizontal_list and len(horizontal_list) > 0:
+                for idx, bbox in enumerate(horizontal_list[0]):
+                    x_min, x_max, y_min, y_max = int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+                    components.append(
+                        BoxItem(
+                            id=f"ocr_{idx:04d}",
+                            bbox=(x_min, y_min, x_max, y_max),
+                            text="[detected_line]",
+                            confidence=1.0,
+                        )
+                    )
+        else:
+            # EasyOCR returns word/phrase components. Q5 merges them into RTL line
+            # boxes without consulting ground truth.
+            results = self.reader.readtext(image, detail=1, paragraph=False, **self.Q5_READTEXT_CONFIG)
+
+            for idx, (bbox_points, text, conf) in enumerate(results):
+                xs = [float(p[0]) for p in bbox_points]
+                ys = [float(p[1]) for p in bbox_points]
+                components.append(
+                    BoxItem(
+                        id=f"ocr_{idx:04d}",
+                        bbox=(min(xs), min(ys), max(xs), max(ys)),
+                        text=text.strip(),
+                        confidence=float(conf),
+                    )
                 )
-            )
 
         relevant_components = []
         rejected_components = []
@@ -1091,7 +1107,7 @@ class OttomanOCREngine:
                         raise RuntimeError("Kraken requires easyocr for line segmentation")
                         
                     logger.info("Using easyocr for line segmentation for Kraken")
-                    seg_result = await self.engines[segmenter].extract(image)
+                    seg_result = await self.engines[segmenter].extract(image, detect_only=True)
                     
                     if not seg_result.lines:
                         logger.warning("Segmentation found no lines for Kraken")

@@ -14,6 +14,8 @@ import {
   type PageResponse,
 } from "@/lib/api";
 import { clearActiveDocumentContext, loadActiveDocumentContext } from "@/lib/documentContext";
+import { AlertTriangle, FileText, Clock, Target, UploadCloud } from 'lucide-react';
+
 
 const MAX_SIZE_MB = 50;
 const ACCEPTED_EXTENSIONS = ["jpg", "jpeg", "png", "tiff", "tif", "pdf"];
@@ -318,22 +320,72 @@ export default function ImageProcessingLabPage() {
       {
         key: "00_original" as StageKey,
         order: "00",
-        title: "Orijinal",
+        title: "Original",
         status: originalUrl ? "available" : "not_available",
         safeForOcr: false,
         imageUrl: originalUrl,
-        description: "Değişmez orijinal belge.",
+        description: "Orijinal belge.",
         metadata: {},
         warnings: [],
       },
       {
-        key: "12_ocr_safe" as StageKey,
-        order: "09",
-        title: "OCR Güvenli Sonuç",
+        key: "01_grayscale" as StageKey,
+        order: "01",
+        title: "Grayscale",
+        status: "not_available",
+        safeForOcr: false,
+        description: "Gri tonlamaya dönüştürme",
+        metadata: {},
+        warnings: [],
+      },
+      {
+        key: "02_denoise" as StageKey,
+        order: "02",
+        title: "Denoise",
+        status: "not_available",
+        safeForOcr: false,
+        description: "Gürültü azaltma",
+        metadata: {},
+        warnings: [],
+      },
+      {
+        key: "03_deskew" as StageKey,
+        order: "03",
+        title: "Deskew",
+        status: "not_available",
+        safeForOcr: false,
+        description: "Eğiklik düzeltme",
+        metadata: {},
+        warnings: [],
+      },
+      {
+        key: "04_threshold" as StageKey,
+        order: "04",
+        title: "Threshold",
+        status: "not_available",
+        safeForOcr: false,
+        description: "İkili (siyah/beyaz) dönüştürme",
+        metadata: {},
+        warnings: [],
+      },
+      {
+        key: "05_segmentation" as StageKey,
+        order: "05",
+        title: "Segmentation",
+        status: "not_available",
+        safeForOcr: false,
+        description: "Bölge tespiti",
+        metadata: {},
+        warnings: [],
+      },
+      {
+        key: "06_final" as StageKey,
+        order: "06",
+        title: "Final",
         status: variantUrl ? "available" : "not_available",
         safeForOcr: true,
         imageUrl: variantUrl,
-        description: "OCR güvenli sonuç",
+        description: "OCR güvenli final sonuç",
         metadata: {},
         warnings: [],
       },
@@ -498,209 +550,302 @@ export default function ImageProcessingLabPage() {
     }
   };
 
+  const hasDocument = Boolean(file || document || (initialContext?.documentId && !error && labStatus !== "ERROR"));
+
   return (
-    <div className="ipl-page" ref={pageRef}>
-      <header className="ipl-header">
+    <main className="w-full min-h-[calc(100vh-64px)] p-4 lg:p-8 animate-in fade-in duration-700 flex flex-col" ref={pageRef}>
+      
+      {/* Hidden file input used by both states */}
+      <input
+        ref={fileRef}
+        type="file"
+        accept={ACCEPTED_INPUT}
+        hidden
+        onChange={(event) => {
+          const selectedFile = event.target.files?.[0];
+          if (selectedFile) handleFile(selectedFile);
+        }}
+      />
+
+      {/* Header */}
+      <header className="ota-page-header">
         <div>
-          <h1>Görüntü İşleme Laboratuvarı</h1>
-          <span>{activeFilename ? activeFilename : "Belge seçin veya ana analizden aktif belgeyle gelin."}</span>
+          <h1 className="text-3xl font-serif font-bold text-[var(--ota-text)] flex items-center gap-3">
+            Görüntü İşleme Laboratuvarı
+            {labStatus === "PROCESSING" || labStatus === "LOADING_DOCUMENT" ? (
+              <span className="text-xs px-2 py-1 bg-[var(--ota-gold)]/20 text-[var(--ota-gold)] rounded-full animate-pulse border border-[var(--ota-gold)]/30">İşleniyor...</span>
+            ) : null}
+          </h1>
+          <p className="text-[var(--ota-text-muted)] text-sm mt-1">
+            {activeFilename ? activeFilename : "Belge ön işleme ve OCR optimizasyonu"}
+          </p>
         </div>
-        <div className="ipl-badges" aria-label="Sistem durumu">
-          <span className="ipl-badge safe">OCR Motoru: Kraken</span>
-          <span className="ipl-badge safe">OCR SAFE final</span>
-        </div>
+        {hasDocument && (
+          <div className="flex flex-wrap gap-2">
+             <button type="button" onClick={() => fileRef.current?.click()} className="px-4 py-2 bg-[var(--ota-bg-2)] border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 hover:bg-[var(--ota-gold-dim)] text-[var(--ota-text)] rounded-lg text-sm transition-all font-medium">Başka Belge Seç</button>
+             <button type="button" onClick={runLab} disabled={!file || labStatus === "LOADING_DOCUMENT" || labStatus === "PROCESSING"} className="px-4 py-2 bg-[var(--ota-gold)] text-[#0A202A] border border-[var(--ota-gold)] hover:bg-[var(--ota-gold)]/90 rounded-lg text-sm transition-all font-bold disabled:opacity-50">
+               {labStatus === "PROCESSING" || labStatus === "LOADING_DOCUMENT" ? "İşleniyor..." : "Yeniden İşle"}
+             </button>
+             <button type="button" onClick={() => router.push("/dashboard")} className="px-4 py-2 bg-[var(--ota-bg-2)] border border-[var(--ota-border)] hover:bg-[var(--ota-bg)] text-[var(--ota-text)] rounded-lg text-sm transition-all font-medium">Ana Analize Dön</button>
+          </div>
+        )}
       </header>
 
-      <section className="ipl-action-strip" aria-label="Laboratuvar aksiyonları">
-        <button type="button" onClick={() => fileRef.current?.click()} aria-label="Belge seç">
-          <strong>Belge Seç</strong>
-          <span>Gerçek dosya yükle</span>
-        </button>
-        <button type="button" onClick={runLab} disabled={!file || labStatus === "LOADING_DOCUMENT" || labStatus === "PROCESSING"} aria-label="Otomatik işlem başlat">
-          <strong>{labStatus === "PROCESSING" || labStatus === "LOADING_DOCUMENT" ? "Belge işleniyor..." : "Otomatik İşle"}</strong>
-          <span>Upload ve OCR-safe üret</span>
-        </button>
-        <button type="button" onClick={() => downloadObjectUrl(variantUrl, "ocr-guvenli-sonuc.png")} disabled={!variantUrl} aria-label="OCR güvenli görüntüyü indir">
-          <strong>OCR Güvenli İndir</strong>
-          <span>Gerçek varyant dosyası</span>
-        </button>
-        <button type="button" onClick={() => router.push("/dashboard")} aria-label="Ana analize dön">
-          <strong>Ana Analize Dön</strong>
-          <span>Belge analiz ekranı</span>
-        </button>
-      </section>
-
-      <section className="ipl-control-bar">
-        <button className="ipl-file" type="button" onClick={() => fileRef.current?.click()}>
-          <strong>{file?.name || "Belge seçilmedi"}</strong>
-          <span>{file ? `${formatBytes(file.size)} · ${file.type || "Format tespit edilemedi"}` : "PNG, JPG, TIFF veya PDF"}</span>
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept={ACCEPTED_INPUT}
-          hidden
-          onChange={(event) => {
-            const selectedFile = event.target.files?.[0];
-            if (selectedFile) handleFile(selectedFile);
-          }}
-        />
-        <label>
-          <span>Belge başlığı</span>
-          <input className="input-field" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Başlık" />
-        </label>
-        <div className="ipl-control-actions">
-          <button type="button" onClick={() => router.push("/dashboard")}>Ana Analize Dön</button>
-          <button type="button" onClick={() => router.push("/historical-analysis")} disabled={!document || !hasAnalysisContext}>Tarihsel Analizi Aç</button>
-          <button type="button" onClick={resetAnalysis}>Yeni Analiz</button>
-          <button type="button" onClick={() => pageRef.current?.requestFullscreen()} title="Tarayıcı tam ekranı">Tam Ekran</button>
+      {error && (
+        <div className="mb-6 p-4 bg-[var(--ota-ruby)]/10 border border-[var(--ota-ruby)]/30 text-[var(--ota-ruby)] rounded-xl text-sm flex items-center gap-2">
+          <span><AlertTriangle className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> {error}
         </div>
-      </section>
+      )}
 
-      {error && <div className="ipl-error">{error}</div>}
-      {(labStatus === "LOADING_DOCUMENT" || labStatus === "PROCESSING") && <div className="ipl-progress">Belge işleniyor...</div>}
-
-      <section className="ipl-workspace">
-        <article className="ipl-pane">
-          <header>
-            <div>
-              <p>1. Orijinal Belge</p>
-              <h2>Değişmez Kaynak</h2>
-            </div>
-            <span className="ipl-badge muted">ORIGINAL</span>
-          </header>
-          <ImageViewer imageUrl={originalUrl} label="Orijinal belge" emptyText="İşlem aşamalarını görüntülemek için bir belge seçin." />
-          <dl className="ipl-footer-meta">
-            <div><dt>Dosya</dt><dd>{display(document?.original_filename || file?.name)}</dd></div>
-            <div><dt>Boyut</dt><dd>{formatBytes(document?.file_size || file?.size)}</dd></div>
-            <div><dt>Format</dt><dd>{display(document?.mime_type || file?.type)}</dd></div>
-            <div><dt>Sayfa</dt><dd>{page ? `${page.page_no} / ${document?.page_count || 1}` : UNKNOWN}</dd></div>
-          </dl>
-        </article>
-
-        <article className="ipl-pane ipl-center">
-          <header>
-            <div>
-              <p>2. İşlem Aşaması</p>
-              <h2>{selected.order} · {selected.title}</h2>
-            </div>
-            <div className="ipl-stage-selector">
-              <select value={selected.key} onChange={(event) => setSelectedStage(event.target.value as StageKey)} aria-label="İşlem aşaması seç">
-                {availableStages.map((stage) => <option key={stage.key} value={stage.key}>{stage.order} {stage.title}</option>)}
-              </select>
-              <span className={`ipl-badge ${selected.safeForOcr ? "safe" : "muted"}`}>{selected.safeForOcr ? "OCR SAFE ✓" : "OCR dışı"}</span>
-            </div>
-          </header>
-          <ImageViewer imageUrl={selected.imageUrl || null} label={`${selected.title} önizleme`} emptyText={selected.description} />
-        </article>
-        
-        {cleanDigitalCopyUrl && (
-          <article className="ipl-pane">
-            <header>
-              <div>
-                <p>Ekstra Çıktı</p>
-                <h2>Temiz Dijital Belge</h2>
-              </div>
-              <span className="ipl-badge safe">GÖRSEL KOPYA</span>
-            </header>
-            <ImageViewer imageUrl={cleanDigitalCopyUrl} label="Temiz dijital belge" emptyText="İşlem aşamalarını görüntülemek için bir belge seçin." />
-            <dl className="ipl-footer-meta">
-              <div><dt>Amaç</dt><dd>İnsan okuması için iyileştirilmiş</dd></div>
-              <div><dt>Not</dt><dd>OCR motoruna gönderilmez</dd></div>
-            </dl>
-          </article>
-        )}
-
-        <aside className="ipl-pane ipl-info">
-          <header>
-            <div>
-              <p>3. Aşama Bilgileri</p>
-              <h2>Detaylar ve Metrikler</h2>
-            </div>
-          </header>
-          <dl className="ipl-meta">
-            {Object.entries(selected.metadata).map(([key, value]) => (
-              <div key={key}><dt>{key}</dt><dd>{display(value)}</dd></div>
-            ))}
-          </dl>
-          <section className="ipl-card-section">
-            <h3>Metin Koruma Analizi</h3>
-            <p>Osmanlıca karakter noktaları ve ince işaretlerin korunması OCR doğruluğu için kritiktir.</p>
-            <dl className="ipl-meta compact">
-              <div><dt>Metin koruma skoru</dt><dd>Hesaplanmadı</dd></div>
-              <div><dt>Bağlı bileşen değişimi</dt><dd>Hesaplanmadı</dd></div>
-              <div><dt>Ön plan piksel değişimi</dt><dd>Hesaplanmadı</dd></div>
-              <div><dt>Belirsiz kaldırma</dt><dd>Hesaplanmadı</dd></div>
-            </dl>
+      {!hasDocument ? (
+        // STATE 1: PREMIUM EMPTY STATE
+        <section className="flex-1 glass-panel rounded-3xl border border-[var(--ota-border)] shadow-[var(--glass-shadow)] flex flex-col items-center justify-center p-12 text-center relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--ota-iznik-turquoise)]/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--ota-gold)]/5 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
+          
+          <div 
+            className="w-28 h-28 mb-8 rounded-full bg-[var(--ota-bg-2)] border border-[var(--ota-border)] flex items-center justify-center shadow-2xl group-hover:border-[var(--ota-gold)]/40 group-hover:scale-105 transition-all duration-500 cursor-pointer relative"
+            onClick={() => fileRef.current?.click()}
+          >
+            <div className="absolute inset-0 rounded-full bg-[var(--ota-gold)]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <span className="text-5xl relative z-10 drop-shadow-md"><FileText className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
+          </div>
+          
+          <h2 className="text-3xl font-bold text-[var(--ota-text)] mb-4">Yeni Belge Seç</h2>
+          <p className="text-[var(--ota-text-muted)] mb-8 max-w-md text-base leading-relaxed">
+            Yapay zeka tabanlı Osmanlıca belge analizine başlamak için görüntü veya PDF dosyanızı laboratuvara yükleyin.<br/><br/>
+            <span className="inline-block px-3 py-1 bg-[var(--ota-bg-2)] rounded-lg text-xs font-mono border border-[var(--ota-border)] mt-2">PNG, JPG, TIFF veya PDF</span>
+          </p>
+          
+          <button 
+            onClick={() => fileRef.current?.click()} 
+            className="px-8 py-4 bg-[var(--ota-gold)] text-[#0A202A] font-bold rounded-xl hover:bg-[var(--ota-gold)]/90 hover:-translate-y-1 transition-all duration-300 shadow-[0_8px_30px_rgba(198,163,74,0.3)] flex items-center gap-3"
+          >
+            <UploadCloud className="w-5 h-5" /> Bilgisayardan Yükle
+          </button>
+        </section>
+      ) : (
+        // STATE 2: ACTIVE STATE
+        <div className="flex-1 flex flex-col lg:flex-row gap-6 min-h-0">
+          
+          {/* Main Viewer Area */}
+          <section className="flex-1 glass-panel rounded-2xl border border-[var(--ota-border)] shadow-[var(--glass-shadow)] flex flex-col overflow-hidden bg-[var(--ota-surface-dark)]/90 min-h-[600px] lg:min-h-0">
+            <BeforeAfterComparison
+              originalUrl={originalUrl}
+              variantUrl={selected.imageUrl || variantUrl}
+              split={compareSplit}
+              setSplit={setCompareSplit}
+              mode={compareMode}
+              setMode={setCompareMode}
+              zoom={compareZoom}
+              setZoom={setCompareZoom}
+              activeMasks={activeMasks}
+              maskOpacity={maskOpacity}
+              maskLayers={maskLayers}
+            />
           </section>
-          {selected.warnings.length > 0 && (
-            <div className="ipl-warning-list">
-              {selected.warnings.map((warning) => <span key={warning}>{warning}</span>)}
-            </div>
-          )}
-        </aside>
-      </section>
 
-      <section className="ipl-lower-grid">
-        <BeforeAfterComparison
-          originalUrl={originalUrl}
-          variantUrl={variantUrl}
-          split={compareSplit}
-          setSplit={setCompareSplit}
-          mode={compareMode}
-          setMode={setCompareMode}
-          zoom={compareZoom}
-          setZoom={setCompareZoom}
-          activeMasks={activeMasks}
-          maskOpacity={maskOpacity}
-          maskLayers={maskLayers}
-        />
+          {/* Right Control Panel */}
+          <aside className="w-full lg:w-[380px] xl:w-[420px] flex-shrink-0 flex flex-col gap-6 lg:overflow-y-auto lg:pr-2 custom-scrollbar max-h-full">
+            
+            {/* Processing Steps (Stages) */}
+            <article className="glass-panel p-5 rounded-2xl border border-[var(--ota-border)] shadow-[var(--glass-shadow)] bg-[var(--ota-surface)]">
+              <header className="mb-4">
+                <h2 className="text-sm font-bold text-[var(--ota-text)] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--ota-gold)]"></span> İşlem Adımları
+                </h2>
+                {backendStages.length === 0 && (
+                  <p className="text-xs text-[var(--ota-text-muted)] mt-2 italic bg-[var(--ota-bg-2)] p-2 rounded-lg border border-[var(--ota-border)]/50">
+                    Bu belge için detaylı preprocessing verisi mevcut değil.
+                  </p>
+                )}
+              </header>
+              <div className="relative flex flex-col gap-0 py-2 pl-2">
+                {/* Dikey çizgi (Pipeline connector) */}
+                <div className="absolute left-[17px] top-6 bottom-6 w-px bg-[var(--ota-border)]/70"></div>
+                
+                {stages.map((stage) => {
+                  const isActive = selectedStage === stage.key;
+                  const isAvailable = stage.status === "available";
+                  
+                  // Extract time/metric if available from metadata
+                  const time = stage.metadata?.processing_time_ms ? `${stage.metadata.processing_time_ms}ms` : null;
+                  const metricConfidence = stage.metadata?.confidence ? `%${Math.round(Number(stage.metadata.confidence) * 100)}` : null;
+                  const metric = stage.metadata?.metric ? String(stage.metadata.metric) : metricConfidence;
 
-        <section className="ipl-panel">
-          <h2>Maske Katmanları</h2>
-          {MASK_LAYERS.map((mask) => {
-            const layer = maskLayers[mask.key];
-            const available = Boolean(layer.rasterUrl || layer.boxes.length || layer.polygons.length);
-            return (
-              <label
-                className={`ipl-mask-row ${activeMasks[mask.key] ? "active" : ""} ${available ? "" : "disabled"}`}
-                key={mask.key}
-                title={available ? mask.label : "Bu belge için bu maske üretilmedi."}
-              >
-                <span>
-                  <i className={`ipl-mask-swatch ${mask.className}`} aria-hidden="true" />
-                  {mask.label}
-                </span>
-                <input
-                  type="checkbox"
-                  checked={available && activeMasks[mask.key]}
-                  disabled={!available}
-                  onChange={(event) => setActiveMasks((current) => ({ ...current, [mask.key]: event.target.checked }))}
+                  return (
+                    <div key={stage.key} className="relative flex gap-3 items-stretch py-2 group">
+                      {/* Durum noktası */}
+                      <div className="relative z-10 flex-shrink-0 mt-3 flex justify-center w-5">
+                        <div className={`w-4 h-4 rounded-full flex items-center justify-center border-2 transition-colors ${
+                          isActive ? "border-[var(--ota-gold)] bg-[var(--ota-gold)] scale-110" :
+                          isAvailable ? "border-[var(--ota-success)] bg-[var(--ota-surface)]" :
+                          "border-[var(--ota-border)] bg-[var(--ota-bg-2)]"
+                        }`}>
+                          {isActive && <div className="w-1.5 h-1.5 rounded-full bg-[#0A202A]" />}
+                        </div>
+                      </div>
+                      
+                      {/* İçerik Kutusu */}
+                      <button
+                        onClick={() => isAvailable && setSelectedStage(stage.key)}
+                        disabled={!isAvailable}
+                        className={`flex-1 text-left rounded-xl border transition-all flex flex-col overflow-hidden ${
+                          isActive 
+                            ? "bg-[var(--ota-gold)]/10 border-[var(--ota-gold)]/50 shadow-sm ring-1 ring-[var(--ota-gold)]/30" 
+                            : isAvailable
+                              ? "bg-[var(--ota-bg-2)]/50 border-[var(--ota-border)] hover:border-[var(--ota-border-hover)] hover:bg-[var(--ota-bg-2)]"
+                              : "bg-[var(--ota-bg)]/20 border-[var(--ota-border)]/30 opacity-60 cursor-not-allowed"
+                        }`}
+                      >
+                        <div className="p-2.5 flex items-center gap-3">
+                          {/* Thumbnail */}
+                          {stage.imageUrl ? (
+                            <div className="w-10 h-10 rounded-lg border border-[var(--ota-border)]/50 overflow-hidden bg-[var(--ota-bg)] flex-shrink-0 shadow-inner">
+                               {/* eslint-disable-next-line @next/next/no-img-element */}
+                               <img src={stage.imageUrl} alt={stage.title} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                          ) : (
+                            <div className="w-10 h-10 rounded-lg border border-[var(--ota-border)]/30 border-dashed bg-[var(--ota-bg-2)] flex items-center justify-center flex-shrink-0">
+                               <span className="text-[10px] text-[var(--ota-text-muted)] font-mono">Yok</span>
+                            </div>
+                          )}
+
+                          {/* Bilgi */}
+                          <div className="flex-1 min-w-0 flex flex-col justify-center">
+                            <div className="flex items-center justify-between gap-2">
+                               <span className={`font-semibold text-xs truncate tracking-wide ${isActive ? "text-[var(--ota-gold)]" : isAvailable ? "text-[var(--ota-text)]" : "text-[var(--ota-text-muted)]"}`}>
+                                 {stage.title}
+                               </span>
+                               {stage.safeForOcr && <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded-md bg-[var(--ota-success)]/10 text-[var(--ota-success)] border border-[var(--ota-success)]/20 shrink-0">OCR</span>}
+                            </div>
+                            
+                            <div className="flex items-center gap-2 mt-1.5 text-[9px] text-[var(--ota-text-muted)] uppercase tracking-wider font-medium">
+                               {!isAvailable ? (
+                                 <span className="text-[var(--ota-text-muted)]/70 line-through decoration-[var(--ota-border)]">Atlandı / Yok</span>
+                               ) : (
+                                 <>
+                                   <span className="text-[var(--ota-success)]">Kullanılabilir</span>
+                                   {time && <span className="flex items-center gap-0.5 before:content-['•'] before:mr-2 before:text-[var(--ota-border)]"><span><Clock className="w-3 h-3" /></span> {time}</span>}
+                                   {metric && <span className="flex items-center gap-0.5 before:content-['•'] before:mr-2 before:text-[var(--ota-border)]"><span><Target className="w-3 h-3" /></span> {metric}</span>}
+                                 </>
+                               )}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </article>
+
+            {/* Metrics & Details for Selected Stage */}
+            <article className="glass-panel p-5 rounded-2xl border border-[var(--ota-border)] shadow-[var(--glass-shadow)] bg-[var(--ota-surface)]">
+              <header className="mb-4">
+                <h2 className="text-sm font-bold text-[var(--ota-text)] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--ota-iznik-turquoise)]"></span> Metrikler
+                </h2>
+              </header>
+              {Object.keys(selected.metadata).length > 0 ? (
+                <dl className="flex flex-col gap-3">
+                  {Object.entries(selected.metadata).map(([key, value]) => (
+                    <div key={key} className="flex justify-between items-center py-2 border-b border-[var(--ota-border)]/50 last:border-0">
+                      <dt className="text-xs font-semibold text-[var(--ota-text-muted)]">{key}</dt>
+                      <dd className="text-sm text-[var(--ota-text)] font-medium text-right max-w-[60%] truncate" title={display(value)}>{display(value)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              ) : (
+                <p className="text-xs text-[var(--ota-text-muted)] italic p-3 bg-[var(--ota-bg-2)]/50 rounded-lg text-center">Bu adım için ek metrik bulunmuyor.</p>
+              )}
+              {selected.warnings.length > 0 && (
+                <div className="mt-4 flex flex-col gap-2">
+                  {selected.warnings.map((warning, i) => (
+                    <span key={i} className="text-xs p-2 bg-[var(--ota-ruby)]/10 text-[var(--ota-ruby)] border border-[var(--ota-ruby)]/20 rounded flex items-start gap-2">
+                      <span><AlertTriangle className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> {warning}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+
+            {/* Mask Layers */}
+            <article className="glass-panel p-5 rounded-2xl border border-[var(--ota-border)] shadow-[var(--glass-shadow)] bg-[var(--ota-surface)]">
+              <header className="mb-4">
+                <h2 className="text-sm font-bold text-[var(--ota-text)] uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--ota-sage)]"></span> Maske Katmanları
+                </h2>
+              </header>
+              <div className="flex flex-col gap-2 mb-5">
+                {MASK_LAYERS.map((mask) => {
+                  const layer = maskLayers[mask.key];
+                  const available = Boolean(layer.rasterUrl || layer.boxes.length || layer.polygons.length);
+                  return (
+                    <label
+                      key={mask.key}
+                      className={`flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer ${
+                        available 
+                          ? (activeMasks[mask.key] ? "bg-[var(--ota-bg-2)] border-[var(--ota-sage)]/40" : "bg-[var(--ota-bg-2)]/50 border-[var(--ota-border)] hover:border-[var(--ota-border-hover)]") 
+                          : "opacity-40 cursor-not-allowed bg-[var(--ota-bg)] border-transparent"
+                      }`}
+                      title={available ? mask.label : "Bu belge için üretilmedi."}
+                    >
+                      <div className="flex items-center gap-3">
+                        <i className={`w-3 h-3 rounded-full shadow-sm ipl-mask-swatch ${mask.className}`} aria-hidden="true" />
+                        <span className="text-sm font-medium text-[var(--ota-text)]">{mask.label}</span>
+                      </div>
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-[var(--ota-border)] text-[var(--ota-sage)] focus:ring-[var(--ota-sage)] bg-[var(--ota-bg)]"
+                        checked={available && activeMasks[mask.key]}
+                        disabled={!available}
+                        onChange={(event) => setActiveMasks((current) => ({ ...current, [mask.key]: event.target.checked }))}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+              
+              <label className="flex flex-col gap-2">
+                <div className="flex justify-between items-center text-xs font-semibold text-[var(--ota-text-muted)] uppercase">
+                  <span>Opaklık</span>
+                  <span className="text-[var(--ota-gold)]">%{maskOpacity}</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value={maskOpacity} 
+                  onChange={(event) => setMaskOpacity(Number(event.target.value))} 
+                  className="w-full accent-[var(--ota-gold)] h-1.5 bg-[var(--ota-border)] rounded-full appearance-none outline-none"
                 />
               </label>
-            );
-          })}
-          <label className="ipl-opacity">
-            <span>Overlay opaklığı</span>
-            <input type="range" min="0" max="100" value={maskOpacity} onChange={(event) => setMaskOpacity(Number(event.target.value))} aria-label="Maske opaklığı" />
-            <strong>%{maskOpacity}</strong>
-          </label>
-          <div className="ipl-mask-status">
-            {!hasAnyMaskData
-              ? "Bu belge için maske verisi üretilmedi."
-              : Object.values(activeMasks).some(Boolean)
-                ? "Seçili gerçek maske katmanları görüntü koordinatlarında açıldı."
-                : "Maske seçilmedi."}
-          </div>
-        </section>
-      </section>
+            </article>
 
-      <details className="ipl-network">
-        <summary>Teknik Tanılama</summary>
-        <h2>Gerçek API Kanıtı</h2>
-        {networkEvidence.length ? <ul>{networkEvidence.map((item, index) => <li key={index}>{item}</li>)}</ul> : <p>Gerçek upload, sayfa görüntüsü, preprocessing ve varyant görüntüsü çağrıları işlemden sonra burada görünür.</p>}
-      </details>
-    </div>
+            {/* Diagnostics (Collapsible) */}
+            <details className="glass-panel p-5 rounded-2xl border border-[var(--ota-border)] shadow-[var(--glass-shadow)] bg-[var(--ota-surface)] group">
+              <summary className="text-sm font-bold text-[var(--ota-text-muted)] uppercase tracking-wider flex items-center justify-between cursor-pointer list-none select-none">
+                <span className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-[var(--ota-text-muted)] group-open:bg-[var(--ota-text)] transition-colors"></span> Teknik Tanılama</span>
+                <span className="group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div className="pt-4 mt-2 border-t border-[var(--ota-border)]/50">
+                {networkEvidence.length ? (
+                  <ul className="flex flex-col gap-1.5">
+                    {networkEvidence.map((item, index) => (
+                      <li key={index} className="text-[10px] font-mono text-[var(--ota-text-2)] p-1.5 bg-[var(--ota-bg-2)] rounded border border-[var(--ota-border)] break-all">{item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-[var(--ota-text-muted)] italic">Ağ istek logları burada görünür.</p>
+                )}
+              </div>
+            </details>
+
+          </aside>
+        </div>
+      )}
+    </main>
   );
 }
 
@@ -965,28 +1110,36 @@ function BeforeAfterComparison({
   } : undefined;
 
   return (
-    <section className="ipl-panel ipl-comparison">
-      <header>
+    <div className="flex flex-col h-full bg-[var(--ota-surface-dark)]/50">
+      <header className="px-6 py-4 border-b border-[var(--ota-border)]/50 bg-[var(--ota-bg-2)]/30 flex items-center justify-between">
         <div>
-          <p>Önce / Sonra Karşılaştırma</p>
-          <h2>Orijinal ↔ OCR Güvenli Sonuç</h2>
+          <h2 className="text-sm font-bold text-[var(--ota-text)] uppercase tracking-wider flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--ota-gold)]"></span> Önizleme
+          </h2>
+          <p className="text-xs text-[var(--ota-text-muted)] mt-1">Orijinal ↔ İşlenmiş Görüntü (Değiştirmek için sağ panelden adım seçin)</p>
         </div>
-        <div className="ipl-segments" role="group" aria-label="Karşılaştırma modu">
+        <div className="flex bg-[var(--ota-bg-2)] p-1 rounded-lg border border-[var(--ota-border)]" role="group" aria-label="Karşılaştırma modu">
           <button
             type="button"
-            className={mode === "slider" ? "active" : ""}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${mode === "slider" ? "bg-[var(--ota-gold)] text-[#0A202A]" : "text-[var(--ota-text-2)] hover:text-[var(--ota-text)]"}`}
             onClick={() => setMode("slider")}
             disabled={Boolean(originalDimensions && variantDimensions && !sameGeometry)}
-            title={originalDimensions && variantDimensions && !sameGeometry ? "Bu iki görüntünün geometrileri farklı olduğu için slider kullanılamıyor." : "Slider"}
+            title={originalDimensions && variantDimensions && !sameGeometry ? "Geometri farkından dolayı kullanılamıyor." : "Slider (Kaydırıcı)"}
           >
             Slider
           </button>
-          <button type="button" className={mode === "side_by_side" ? "active" : ""} onClick={() => setMode("side_by_side")}>Yan Yana</button>
+          <button 
+            type="button" 
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${mode === "side_by_side" ? "bg-[var(--ota-gold)] text-[#0A202A]" : "text-[var(--ota-text-2)] hover:text-[var(--ota-text)]"}`}
+            onClick={() => setMode("side_by_side")}
+          >
+            Yan Yana
+          </button>
         </div>
       </header>
       <div
         ref={frameRef}
-        className={`ipl-compare-frame ${mode} ${isPanning ? "panning" : ""}`}
+        className={`relative flex-1 overflow-hidden ${mode} ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endPointer}
@@ -1029,13 +1182,15 @@ function BeforeAfterComparison({
           <div className="ipl-empty">Orijinal ve OCR güvenli sonuç üretildiğinde karşılaştırma burada görünür.</div>
         )}
       </div>
-      <div className="ipl-viewer-actions">
-        <button type="button" onClick={() => setZoom(Math.max(50, zoom - 25))} disabled={!hasImages} aria-label="Karşılaştırmayı uzaklaştır">-</button>
-        <button type="button" onClick={() => setZoom(Math.min(500, zoom + 25))} disabled={!hasImages} aria-label="Karşılaştırmayı yakınlaştır">+</button>
-        <button type="button" onClick={resetViewer} disabled={!hasImages} aria-label="Senkron karşılaştırmayı sıfırla">Senkron Sıfırla</button>
-        <span>%{zoom}</span>
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[var(--ota-bg-2)]/90 backdrop-blur-md p-1.5 rounded-xl border border-[var(--ota-border)] shadow-lg z-50">
+        <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--ota-bg)] border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 hover:text-[var(--ota-gold)] transition-colors text-lg disabled:opacity-50" onClick={() => setZoom(Math.max(50, zoom - 25))} disabled={!hasImages} aria-label="Uzaklaştır">-</button>
+        <span className="text-xs font-mono w-12 text-center text-[var(--ota-text)] font-semibold">%{zoom}</span>
+        <button type="button" className="w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--ota-bg)] border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 hover:text-[var(--ota-gold)] transition-colors text-lg disabled:opacity-50" onClick={() => setZoom(Math.min(500, zoom + 25))} disabled={!hasImages} aria-label="Yakınlaştır">+</button>
+        <div className="w-px h-5 bg-[var(--ota-border)] mx-1" />
+        <button type="button" className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--ota-bg)] border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 hover:text-[var(--ota-gold)] transition-colors disabled:opacity-50" onClick={resetViewer} disabled={!hasImages}>Senkron Sıfırla</button>
       </div>
-    </section>
+    </div>
   );
 }
-
+
+

@@ -1,5 +1,5 @@
 param(
-    [string]$Distro = "Ubuntu",
+    [string]$Distro = "Ubuntu-24.04",
     [string]$PythonPath = "/home/black_man/venvs/ottoman_kraken/bin/python",
     [string]$HostAddress = "127.0.0.1",
     [int]$Port = 8765,
@@ -39,7 +39,7 @@ $WslLogPath = (& wsl.exe -d $Distro -- wslpath -a "$StderrPath").Trim()
 $LaunchContent = @"
 #!/usr/bin/env bash
 cd /tmp
-exec "$PythonPath" "$WslServiceScript" --host "$HostAddress" --port "$Port" --model-path "$WslModelPath" --concurrency "$Concurrency" >> "$WslLogPath" 2>&1
+exec "$PythonPath" "$WslServiceScript" --host "0.0.0.0" --port "$Port" --model-path "$WslModelPath" --concurrency "$Concurrency" >> "$WslLogPath" 2>&1
 "@
 $LaunchContent = $LaunchContent.Replace("`r`n", "`n").TrimStart() + "`n"
 [System.IO.File]::WriteAllText($WinLaunchScript, $LaunchContent, [System.Text.UTF8Encoding]::new($false))

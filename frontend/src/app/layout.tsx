@@ -19,7 +19,7 @@ const notoNaskhArabic = Noto_Naskh_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "Osmanlıca Belge Asistanıı — Yapay Zekâ Destekli Dijital Arşiv",
+  title: "Osmanlıca Belge Asistanı — Yapay Zekâ Destekli Dijital Arşiv",
   description:
     "Taranmış Osmanlı Türkçesi belgelerini OCR, transliterasyon, modernleştirme, NER ve belge sohbeti ile işleyen yapay zekâ destekli dijital arşiv asistanı.",
   keywords: ["Osmanlıca", "OCR", "NER", "belge asistanı", "dijital arşiv", "yapay zekâ"],

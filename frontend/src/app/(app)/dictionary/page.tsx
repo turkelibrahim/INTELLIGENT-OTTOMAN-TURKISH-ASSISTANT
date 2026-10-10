@@ -2,6 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { Icons } from "@/components/Icons";
+import { Search, Book } from 'lucide-react';
+
 
 const MOCK_DICTIONARY = [
   { id: 1, ottoman: "كتاب", latin: "Kitap", modern: "Yazılı veya basılı eser", origin: "Arapça", example: "Kütüphanede binlerce kitap bulunurdu." },
@@ -46,67 +48,65 @@ export default function DictionaryPage() {
   }, [searchQuery, activeFilter]);
 
   return (
-    <div className="w-full p-8 animate-in slide-in-from-bottom-4 fade-in duration-700">
-      <div className="glass-panel min-h-[85vh] flex flex-col rounded-2xl overflow-hidden relative">
-        {/* Dekoratif Arkaplan Süsü */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+    <div className="w-full p-4 lg:p-8 animate-in slide-in-from-bottom-4 fade-in duration-700">
+      <div className="glass-panel min-h-[85vh] flex flex-col rounded-2xl overflow-hidden relative border border-[var(--ota-border)] shadow-[var(--glass-shadow)]">
         
         {/* Header */}
-        <div className="p-10 border-b border-dashed border-slate-700/50 bg-slate-900/40 relative z-10">
-          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-            <div>
-              <h2 className="text-4xl font-bold mb-4 flex items-center gap-4 text-slate-100">
-                <span className="text-amber-500 bg-amber-500/10 p-3 rounded-2xl shadow-[0_0_20px_rgba(215,165,72,0.2)]">📖</span>
-                Osmanlıca Sözlük
-              </h2>
-              <p className="text-slate-400 m-0 text-lg max-w-2xl">
-                Kelimenin Latin harfli okunuşunu, günümüz Türkçesi anlamını veya Arap harfli orijinal yazılışını arayarak geçmişin kelime hazinesini keşfedin.
-              </p>
-            </div>
-            
-            {/* Canlı Sayaç */}
-            <div className="flex flex-col items-end">
-              <span className="text-4xl font-serif text-amber-500/80 mb-1">{filteredWords.length}</span>
-              <span className="text-sm text-slate-500 uppercase tracking-wider font-semibold">Kelime Bulundu</span>
-            </div>
+        <div className="p-6 lg:p-10 border-b border-[var(--ota-border)] bg-[var(--ota-bg-2)]/80 relative z-10 flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-3xl font-serif font-bold flex items-center gap-4 text-[var(--ota-text)]">
+              <span className="text-[var(--ota-gold)] bg-[var(--ota-gold-dim)] p-3 rounded-2xl border border-[var(--ota-gold)]/20 shadow-sm"><Book className="w-8 h-8 text-current" /></span>
+              Osmanlıca Sözlük
+            </h2>
+            <p className="text-[var(--ota-text-muted)] m-0 text-sm max-w-2xl">
+              Kelimenin Latin harfli okunuşunu, günümüz Türkçesi anlamını veya Arap harfli orijinal yazılışını arayarak geçmişin kelime hazinesini keşfedin.
+            </p>
+          </div>
+          
+          <div className="flex flex-col items-start lg:items-end p-4 bg-[var(--ota-bg)] border border-[var(--ota-border)] rounded-xl">
+            <span className="text-3xl font-serif text-[var(--ota-gold)] mb-1 leading-none">{filteredWords.length}</span>
+            <span className="text-xs text-[var(--ota-text-muted)] uppercase tracking-wider font-semibold flex items-center gap-2">
+              Kelime Bulundu
+
+            </span>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-10 bg-slate-900/10 relative z-10">
+        <div className="flex-1 p-6 lg:p-10 bg-[var(--ota-bg)] relative z-10">
           
           {/* Arama ve Filtreleme Çubuğu */}
-          <div className="flex flex-col xl:flex-row gap-6 mb-12">
+          <div className="flex flex-col xl:flex-row gap-6 mb-10">
             <div className="relative flex-1 group">
-              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-amber-500 transition-colors">
-                {Icons.search}
+              <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--ota-text-muted)] group-focus-within:text-[var(--ota-gold)] transition-colors">
+                <Search className="w-5 h-5 inline-block mr-1 align-text-bottom" />
               </div>
               <input
                 type="text"
                 placeholder="Kelime ara... (Örn: Aşk, Zaman, كتاب)"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-16 pl-14 pr-6 bg-slate-950/50 border border-slate-700/50 rounded-2xl text-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all shadow-inner"
+                className="w-full h-14 pl-14 pr-12 bg-[var(--ota-bg-2)] border border-[var(--ota-border)] rounded-2xl text-[var(--ota-text)] placeholder-[var(--ota-text-muted)] focus:outline-none focus:border-[var(--ota-gold)] focus:ring-1 focus:ring-[var(--ota-gold)] transition-all shadow-inner"
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--ota-text-muted)] hover:text-[var(--ota-text)] p-1 transition-colors"
                 >
                   ✕
                 </button>
               )}
             </div>
             
-            <div className="flex gap-2 p-2 bg-slate-950/50 rounded-2xl border border-slate-700/50 self-start overflow-x-auto">
+            <div className="flex gap-2 p-1 bg-[var(--ota-bg-2)] rounded-2xl border border-[var(--ota-border)] self-start overflow-x-auto custom-scrollbar">
               {categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-6 py-3 rounded-xl whitespace-nowrap text-sm font-medium transition-all duration-300 ${
+                  className={`px-5 py-2.5 rounded-xl whitespace-nowrap text-sm font-medium transition-all duration-300 ${
                     activeFilter === cat 
-                      ? 'bg-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(215,165,72,0.15)]' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                      ? 'bg-[var(--ota-gold-dim)] text-[var(--ota-gold)] shadow-sm' 
+                      : 'text-[var(--ota-text-muted)] hover:text-[var(--ota-text)] hover:bg-[var(--ota-bg)]'
                   }`}
                 >
                   {cat}
@@ -121,47 +121,47 @@ export default function DictionaryPage() {
               {filteredWords.map((word) => (
                 <div 
                   key={word.id} 
-                  className="relative glass-panel rounded-2xl border border-slate-700/50 hover:border-amber-500/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(215,165,72,0.1)] group overflow-hidden flex flex-col"
+                  className="relative glass-panel rounded-2xl border border-[var(--ota-border)] hover:border-[var(--ota-gold)]/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg group overflow-hidden flex flex-col bg-[var(--ota-surface-dark)]/80"
                 >
                   {/* Filigran (Arkaplan Osmanlıca) */}
-                  <div className="absolute -right-4 -bottom-8 text-8xl font-serif text-amber-500/[0.03] group-hover:text-amber-500/[0.07] transition-colors pointer-events-none select-none z-0" dir="rtl">
+                  <div className="absolute -right-2 -bottom-6 text-7xl font-serif text-[var(--ota-gold)]/5 group-hover:text-[var(--ota-gold)]/10 transition-colors pointer-events-none select-none z-0" dir="rtl">
                     {word.ottoman}
                   </div>
                   
                   <div className="p-6 relative z-10 flex flex-col h-full">
                     <div className="flex justify-between items-start mb-6">
-                      <h3 className="m-0 text-2xl font-bold text-slate-100 group-hover:text-amber-400 transition-colors">
+                      <h3 className="m-0 text-2xl font-bold text-[var(--ota-text)] group-hover:text-[var(--ota-gold)] transition-colors">
                         {word.latin}
                       </h3>
-                      <span className="text-4xl font-serif text-amber-500 filter drop-shadow-md" dir="rtl">
+                      <span className="text-3xl font-serif text-[var(--ota-gold)] drop-shadow-sm" dir="rtl">
                         {word.ottoman}
                       </span>
                     </div>
                     
                     <div className="flex-1">
-                      <p className="text-slate-300 text-lg mb-4">
-                        <span className="text-amber-500/70 text-sm block mb-1 uppercase tracking-wider font-semibold">Anlamı</span>
+                      <p className="text-[var(--ota-text-2)] text-base mb-4">
+                        <span className="text-[var(--ota-gold)]/70 text-xs block mb-1 uppercase tracking-wider font-semibold">Anlamı</span>
                         {word.modern}
                       </p>
                       
                       {word.example && (
-                        <p className="text-slate-400 text-sm italic mb-4 border-l-2 border-amber-500/30 pl-3">
+                        <p className="text-[var(--ota-text-muted)] text-sm italic mb-4 border-l-2 border-[var(--ota-gold)]/30 pl-3 leading-relaxed">
                           &quot;{word.example}&quot;
                         </p>
                       )}
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-dashed border-slate-700/50 flex justify-between items-center">
-                      <span className={`text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-700/50 ${
-                        word.origin === 'Arapça' ? 'bg-emerald-500/10 text-emerald-400' :
-                        word.origin === 'Farsça' ? 'bg-blue-500/10 text-blue-400' :
-                        word.origin === 'Türkçe' ? 'bg-red-500/10 text-red-400' :
-                        'bg-slate-800/80 text-slate-300'
+                    <div className="mt-auto pt-4 border-t border-[var(--ota-border)] flex justify-between items-center">
+                      <span className={`text-xs font-medium px-2 py-1 rounded border ${
+                        word.origin === 'Arapça' ? 'bg-[var(--ota-success)]/10 text-[var(--ota-success)] border-[var(--ota-success)]/20' :
+                        word.origin === 'Farsça' ? 'bg-[var(--ota-iznik-turquoise)]/10 text-[var(--ota-iznik-turquoise)] border-[var(--ota-iznik-turquoise)]/20' :
+                        word.origin === 'Türkçe' ? 'bg-[var(--ota-ruby)]/10 text-[var(--ota-ruby)] border-[var(--ota-ruby)]/20' :
+                        'bg-[var(--ota-bg-2)] text-[var(--ota-text-muted)] border-[var(--ota-border)]'
                       }`}>
                         {word.origin}
                       </span>
                       
-                      <button className="text-amber-500/0 group-hover:text-amber-500/100 transition-all text-sm font-medium flex items-center gap-1">
+                      <button className="text-[var(--ota-gold)]/0 group-hover:text-[var(--ota-gold)]/100 transition-all text-xs font-medium flex items-center gap-1">
                         Detay <span aria-hidden="true">→</span>
                       </button>
                     </div>
@@ -170,15 +170,15 @@ export default function DictionaryPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-32">
-              <div className="text-7xl mb-6 text-amber-500/40 drop-shadow-[0_0_20px_rgba(215,165,72,0.2)]">🔍</div>
-              <h3 className="text-slate-200 text-2xl font-bold m-0 mb-3">Sonuç Bulunamadı</h3>
-              <p className="text-slate-400 text-lg">
-                &quot;<strong className="text-amber-500">{searchQuery}</strong>&quot; araması ve &quot;<strong className="text-amber-500">{activeFilter}</strong>&quot; filtresiyle eşleşen kelime yok.
+            <div className="flex flex-col items-center justify-center py-20 opacity-70">
+              <div className="text-5xl mb-4 text-[var(--ota-gold)]/40 drop-shadow-sm"><Search className="w-5 h-5 inline-block mr-1 align-text-bottom" /></div>
+              <h3 className="text-[var(--ota-text)] text-xl font-bold mb-2">Sonuç Bulunamadı</h3>
+              <p className="text-[var(--ota-text-muted)] text-sm max-w-sm text-center">
+                &quot;{searchQuery}&quot; araması ve &quot;{activeFilter}&quot; filtresiyle eşleşen kelime yok.
               </p>
               <button 
                 onClick={() => { setSearchQuery(""); setActiveFilter("Tümü"); }}
-                className="mt-6 px-6 py-3 bg-slate-800 text-slate-200 hover:bg-slate-700 rounded-xl transition-colors font-medium"
+                className="mt-6 px-4 py-2 bg-[var(--ota-bg-2)] text-[var(--ota-text)] border border-[var(--ota-border)] hover:border-[var(--ota-gold)] hover:text-[var(--ota-gold)] rounded-lg transition-colors text-sm font-medium"
               >
                 Tüm Filtreleri Temizle
               </button>

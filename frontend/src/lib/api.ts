@@ -405,6 +405,15 @@ export interface FullDocumentAnalysisResponse {
   };
   uncertainties: string[];
   warnings: string[];
+  verification_status?: string;
+  ai_route?: {
+    primary: string;
+    verification?: string | null;
+    second_opinion?: boolean | null;
+  };
+  cache_hit?: boolean;
+  models_used?: string[];
+  system_confidence?: number;
 }
 
 export interface AnalysisJobResponse {
@@ -475,7 +484,12 @@ export const analysisApi = {
         }
 
         const detail = parseApiErrorPayload(payload, xhr.statusText || "Analiz kuyruğa alınamadı");
-        if (xhr.status === 401) removeToken();
+        if (xhr.status === 401) {
+          removeToken();
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
         reject(new ApiError(xhr.status, detail));
       };
 
@@ -526,7 +540,12 @@ export const analysisApi = {
         }
 
         const detail = parseApiErrorPayload(payload, xhr.statusText || "Analiz isteği başarısız oldu");
-        if (xhr.status === 401) removeToken();
+        if (xhr.status === 401) {
+          removeToken();
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+        }
         reject(new ApiError(xhr.status, detail));
       };
 
@@ -695,7 +714,7 @@ export const chatApi = {
     request<{ role: string; content: string; citations: CitationResponse[] }>(`/chat/sessions/${sessionId}/messages`, {
       method: "POST",
       body: JSON.stringify({ content })
-    })
+    }, 0, 60000)
 };
 
 // ============== Ground Truth API ==============
@@ -829,5 +848,33 @@ export const groundTruthApi = {
 
   getPageImageBlobUrl: (pageId: number) =>
     fetchAuthenticatedBlobUrl(`${API_BASE_URL}/ground-truth/pages/${pageId}/image`),
+};
+
+// ============== System API ==============
+export interface SystemStatusResponse {
+  models: {
+    ocr_engine: string;
+    ocr_model: string;
+    llm: string;
+    ner: string;
+    vector_db: string;
+    embedding: string;
+    fallback_model: string;
+  };
+  api_integrations: {
+    nvidia_nim: string;
+    nvidia_primary_model: string;
+    nvidia_vision_model: string;
+  };
+  system: {
+    status: string;
+    data_privacy: string;
+    version: string;
+    debug_mode: boolean;
+  };
+}
+
+export const systemApi = {
+  getStatus: () => request<SystemStatusResponse>("/system/status"),
 };
 

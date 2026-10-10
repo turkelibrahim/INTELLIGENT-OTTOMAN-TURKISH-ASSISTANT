@@ -46,6 +46,7 @@ export default function ChatTab({ documentId }: { documentId: number }) {
     setInput("");
     setMessages(prev => [...prev, { id: Date.now(), role: "user", content: userMsg }]);
     setLoading(true);
+    setError("");
     
     try {
       const response = await chatApi.sendMessage(sessionId, userMsg);
@@ -78,10 +79,11 @@ export default function ChatTab({ documentId }: { documentId: number }) {
             key={msg.id} 
             style={{ 
               alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-              background: msg.role === "user" ? "#d4af37" : "var(--ota-surface-alt)",
-              color: msg.role === "user" ? "#001f3f" : "var(--ota-text-primary)",
+              background: msg.role === "user" ? "var(--ota-gold)" : "var(--ota-surface-2)",
+              color: msg.role === "user" ? "#05090B" : "var(--ota-text)",
               padding: "12px 16px",
-              borderRadius: "8px",
+              borderRadius: "12px",
+              border: msg.role === "user" ? "none" : "1px solid var(--ota-border)",
               maxWidth: "80%"
             }}
           >

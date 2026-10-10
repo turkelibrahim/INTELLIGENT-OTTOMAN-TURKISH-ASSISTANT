@@ -1,53 +1,27 @@
-﻿---
-type: handoff
-status: verified
-last_verified: 2026-10-04
-owners: [Antigravity]
-source_paths:
-  - backend/app/core/config.py
-tags: [handoff, runtime, recovery]
----
+# 2026-10-06 Handoff
 
-# Latest Handoff
-
-## Oturum Ozeti
-- **Tarih:** 2026-10-04
+## Oturum Özeti
+- **Tarih:** 2026-10-06
 - **Ajan:** Antigravity
-- **Mod:** MODE: RECOVER / RUNTIME_START
-- Önceki ajanın Kraken WSL kurulumunda WSL dağıtım ismini 'Ubuntu' olarak yanlış kaydetmesi sorunu tespit edildi. 'Ubuntu-24.04' olarak ackend/app/core/config.py içinde düzeltildi.
-- Sistem tam olarak çevrimiçi başlatıldı.
-- Persistent Kraken WSL servisi ayağa kaldırıldı, GPU erişimi doğrulandı.
-- Tüm backend, frontend ve worker bileşenleri sağlıklı şekilde çalışıyor.
+- **Mod:** EXECUTE
+- **Hedef:** JURY FIX #7 OCR Performance Analysis & JURY FIX #8 Chat Functional Failure.
 
-## Tamamlanan Gorevler
-- Sistemi başarıyla çalıştırmak ve hatalı yapılandırmayı onarmak.
-- Kullanıcıya çevrimiçi erişim linkini vermek.
+## Yapılanlar
+1. **JURY FIX #7 (Hallucination & Prompt Hardening)**: `DocumentAnalysisPipeline` ve `TransliterationService`/`DocIntelligenceEngine` düzeltildi. Satır sayılarının uyuşmazlığı halinde (Latin/Modern satır sayısı != OCR satır sayısı) yapay zekaya zorlayıcı "hints" verilmesi engellendi. LLM promptlarına KESİN SATIR KORUMA kuralı eklendi. `benchmark.py` ile gerçek belge üzerinde (`page_1.png`) OCR/Latin/Modern Turkish olarak birebir hizalandığı kanıtlandı. "Sahte uzun paragraflar uydurma" halüsinasyonu giderildi.
+2. **JURY FIX #8 (Chat Functional Failure)**: Chat (Belge Asistanı) bileşenindeki hata durumu onarıldı:
+   - Frontend `chatApi.sendMessage` timeout süresi 15s'den 60s'ye çıkarıldı. LLM yanıt süresi timeout'a takılıp "Mesaj gönderilemedi" hatası vermesi engellendi.
+   - `ChatWidget` içindeki "Tekrar Dene" butonu düzeltildi; başarısız deneme sonrası mesajın iki defa gönderilmesi/çoğaltılması (duplicate user message) bug'ı giderildi.
+   - `FloatingChatWidget` bileşeninde başarısız gönderimin error bubble olarak array'e eklenmemesi (sadece global error state basması) düzeltildi. "Tekrar Dene" fonksiyonunun input kutusuna metni geri atması yerine, doğrudan API üzerinden tekrar denemesi sağlandı.
+   - `ChatTab.tsx` error state clearing mantığı eklendi.
 
-## Degistirilen Dosyalar
-- ackend/app/core/config.py
-- docs/wiki/10_Handoffs/Latest_Handoff.md
+## Değiştirilen Dosyalar
+- `backend/app/services/document_analysis_pipeline.py`
+- `backend/app/services/transliteration_service.py`
+- `backend/app/services/document_intelligence_service.py`
+- `frontend/src/lib/api.ts`
+- `frontend/src/components/workspace/ChatWidget.tsx`
+- `frontend/src/components/ui/FloatingChatWidget.tsx`
+- `frontend/src/components/workspace/tabs/ChatTab.tsx`
 
-## Calistirilan Komutlar
-- scripts/runtime_launcher.ps1 -Action Restart
-- scripts/check_kraken_service.ps1
-
-## Test Sonuclari
-- Kraken GPU CUDA True olarak doğrulandı.
-- Backend /health -> 200 OK.
-- Frontend /login -> 200 OK.
-
-## Acik Blokajlar
-- Yok.
-
-## Aktif Gorev ve Kaldigi Adim
-- Sistem kullanıma hazır. 
-- Bir sonraki aşamada P0 görevi olan TASK-20260824-SRS-GAP-IMPLEMENTATION (Export UI özellikleri vs.) başlatılabilir.
-
-## Bir Sonraki Ajanin Ilk Yapacagi Islem
-- TASK-20260824-SRS-GAP-IMPLEMENTATION Frontend export butonlarının implementasyonu ile devam etmek.
-
-## Dokunulmamasi Gereken Alanlar
-- Yapılandırılmış ve doğrulanmış WSL dizini (OCR_KRAKEN_WSL_DISTRO ve OCR_KRAKEN_WSL_PYTHON).
-
-## Gerekli Kullanici Karari
-- Yok. Kullanıcı http://127.0.0.1:3000/login adresinden uygulamaya girebilir.
+## Aktif Görev
+Sistemin test edilmesi tamamlandı. OCR Hataları veya JURY FIX serisinde bir sonraki adıma geçilebilir.

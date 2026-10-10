@@ -2,6 +2,7 @@
 File upload, validation, storage and page-rendering service.
 """
 import hashlib
+import logging
 import os
 import shutil
 import uuid
@@ -12,6 +13,8 @@ from fastapi import HTTPException, UploadFile, status
 from PIL import Image
 
 from app.core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 ALLOWED_MIME_TYPES = {

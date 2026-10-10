@@ -45,6 +45,28 @@ class Settings(BaseSettings):
     OCR_KRAKEN_WSL_DISTRO: str = "Ubuntu-24.04"
     OCR_KRAKEN_WSL_PYTHON: str = "/home/black_man/venvs/ottoman_kraken/bin/python"
 
+    # NVIDIA AI Router
+    NVIDIA_API_KEY: Optional[str] = None
+    NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
+    NVIDIA_PRIMARY_MODEL: str = "deepseek-ai/deepseek-v4.1-flash"
+    NVIDIA_SECONDARY_MODEL: str = "z-ai/glm-5-3-flash"
+    NVIDIA_TRANSLATION_MODEL: str = "nvidia/riva-translate-4b-instruct-v2"
+    NVIDIA_VISION_MODEL: str = "meta/llama-3.2-11b-vision-instruct"
+    NVIDIA_OCR_FALLBACK_ENABLED: bool = True
+    OCR_MAX_DURATION_SECONDS: int = 15
+    OCR_MIN_CONFIDENCE_THRESHOLD: float = 0.60
+    
+    NVIDIA_ENABLED: bool = True
+    NVIDIA_MAX_CONCURRENT: int = 1
+
+    NVIDIA_REQUESTS_PER_MINUTE: int = 2
+    NVIDIA_MAX_RETRIES: int = 2
+    NVIDIA_TIMEOUT_SECONDS: int = 25
+    NVIDIA_CACHE_ENABLED: bool = True
+    DEMO_MODE: bool = True
+    NVIDIA_LOG_PROMPTS: bool = False
+    NVIDIA_LOG_RESPONSES: bool = False
+
     # NER Ayarları
     NER_MODEL_NAME: str = "ottoman-ner"
 

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Icons } from "@/components/Icons";
 import type { UserResponse } from "@/lib/api";
+import { Settings, Star, User, LogOut } from 'lucide-react';
+
 
 /** Yaklaşık Hicri tarih hesaplama (civil approximation) */
 function toHijri(date: Date): { year: number; month: string; day: number } {
@@ -165,21 +167,21 @@ export default function Header({
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 px-5 py-2.5 text-sm text-[var(--ota-text-2)] hover:bg-[var(--ota-teal-active)] hover:text-[var(--ota-gold)] transition-colors"
                   >
-                    <span>👤</span> Profilim
+                    <span><User className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> Profilim
                   </Link>
                   <Link
                     href="/settings"
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 px-5 py-2.5 text-sm text-[var(--ota-text-2)] hover:bg-[var(--ota-teal-active)] hover:text-[var(--ota-gold)] transition-colors"
                   >
-                    <span>⚙️</span> Ayarlar
+                    <span><Settings className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> Ayarlar
                   </Link>
                   <Link
                     href="/favorites"
                     onClick={() => setShowProfileMenu(false)}
                     className="flex items-center gap-3 px-5 py-2.5 text-sm text-[var(--ota-text-2)] hover:bg-[var(--ota-teal-active)] hover:text-[var(--ota-gold)] transition-colors"
                   >
-                    <span>⭐</span> Favorilerim
+                    <span><Star className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> Favorilerim
                   </Link>
                 </div>
 
@@ -189,7 +191,7 @@ export default function Header({
                     onClick={() => { setShowProfileMenu(false); onLogout(); }}
                     className="flex items-center gap-3 px-5 py-2.5 text-sm text-[var(--ota-ruby)] hover:bg-[var(--ota-ruby)]/10 transition-colors w-full text-left"
                   >
-                    <span>🚪</span> Çıkış Yap
+                    <span><LogOut className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> Çıkış Yap
                   </button>
                 </div>
               </div>

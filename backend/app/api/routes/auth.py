@@ -218,7 +218,7 @@ async def get_my_stats(
     ).count()
     archived_docs = db.query(Document).filter(
         Document.user_id == current_user.id,
-        Document.is_archived == True  # noqa: E712
+        Document.status == "archived"
     ).count()
 
     return {

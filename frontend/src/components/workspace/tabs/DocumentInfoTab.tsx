@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import type { FullDocumentAnalysisResponse } from "@/lib/api";
-import { mapDocumentClaims } from "@/lib/viewModel";
+import { mapDocumentClaims, translateInternalValue } from "@/lib/viewModel";
 import StatusBadge from "@/components/ui/StatusBadge";
 import ConfidenceBadge from "@/components/ui/ConfidenceBadge";
 import EmptyState from "@/components/ui/EmptyState";
@@ -36,13 +36,13 @@ export default function DocumentInfoTab({ result }: Props) {
     const ha = result.historical_analysis || {};
     const additions: Array<{ label: string; value: string }> = [];
     if (ha.document_type && ha.document_type !== "tespit edilemedi") {
-      additions.push({ label: "Belge Türü", value: ha.document_type });
+      additions.push({ label: "Belge Türü", value: translateInternalValue(ha.document_type) });
     }
     if (ha.possible_period && ha.possible_period !== "tespit edilemedi") {
-      additions.push({ label: "Tahmini Dönem", value: ha.possible_period });
+      additions.push({ label: "Tahmini Dönem", value: translateInternalValue(ha.possible_period) });
     }
     if (ha.possible_sultan_period) {
-      additions.push({ label: "Tahmini Padişah Dönemi", value: ha.possible_sultan_period });
+      additions.push({ label: "Tahmini Padişah Dönemi", value: translateInternalValue(ha.possible_sultan_period) });
     }
     return additions;
   }, [result]);
@@ -64,15 +64,15 @@ export default function DocumentInfoTab({ result }: Props) {
   });
 
   return (
-    <div className="ota-doc-info-tab">
+    <div className="ota-doc-info-tab p-4 md:p-6 space-y-6">
       {/* Detected claims table */}
       {sortedDetected.length > 0 && (
-        <div className="ota-info-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sortedDetected.map((claim, idx) => (
-            <div key={`${claim.field}-${idx}`} className="ota-info-row">
-              <span className="ota-info-label">{claim.label}</span>
-              <span className="ota-info-value">{claim.value}</span>
-              <div className="ota-info-badges">
+            <div key={`${claim.field}-${idx}`} className="flex flex-col bg-[var(--ota-surface-2)] p-4 rounded-xl border border-[var(--ota-border)] shadow-sm hover:border-[var(--ota-gold)]/50 transition-colors">
+              <span className="text-[10px] uppercase tracking-wider text-[var(--ota-text-muted)] font-semibold mb-1">{claim.label}</span>
+              <span className="text-[var(--ota-text)] font-medium text-sm mb-3 flex-1">{claim.value}</span>
+              <div className="flex items-center gap-2 mt-auto pt-2 border-t border-[var(--ota-border)]">
                 <StatusBadge
                   variant={claim.statusVariant}
                   label={claim.statusLabel}
@@ -89,15 +89,15 @@ export default function DocumentInfoTab({ result }: Props) {
 
       {/* Historical analysis fields (inferred) */}
       {historicalFields.length > 0 && (
-        <div className="ota-info-inferred-section">
-          <span className="ota-info-section-label">Çıkarım (Harici Kaynak Desteğiyle)</span>
-          <div className="ota-info-grid">
+        <div className="mt-8">
+          <span className="text-xs uppercase tracking-wider text-[var(--ota-gold)] font-bold mb-4 block">Tarihsel Çıkarım (Harici Kaynak Desteğiyle)</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {historicalFields.map((f) => (
-              <div key={f.label} className="ota-info-row">
-                <span className="ota-info-label">{f.label}</span>
-                <span className="ota-info-value">{f.value}</span>
-                <div className="ota-info-badges">
-                  <StatusBadge variant="neutral" label="Muhtemel" small />
+              <div key={f.label} className="flex flex-col bg-[var(--ota-surface-2)]/50 p-4 rounded-xl border border-[var(--ota-border)]">
+                <span className="text-[10px] uppercase tracking-wider text-[var(--ota-text-muted)] font-semibold mb-1">{f.label}</span>
+                <span className="text-[var(--ota-text)] font-medium text-sm mb-3">{f.value}</span>
+                <div className="flex items-center gap-2 mt-auto pt-2 border-t border-[var(--ota-border)]">
+                  <StatusBadge variant="info" label="Sistem Çıkarımı" small />
                 </div>
               </div>
             ))}
@@ -107,15 +107,15 @@ export default function DocumentInfoTab({ result }: Props) {
 
       {/* Not detected summary */}
       {notDetected.length > 0 && (
-        <div className="ota-info-missing-section">
+        <div className="mt-8 border-t border-[var(--ota-border)] pt-6">
           {!showAll ? (
-            <div className="ota-info-missing-summary">
-              <span className="ota-info-missing-text">
+            <div className="flex items-center justify-between bg-[var(--ota-surface-2)]/30 p-3 rounded-lg border border-[var(--ota-border)]">
+              <span className="text-xs text-[var(--ota-text-muted)]">
                 {notDetected.length} belge bilgisi güvenilir şekilde tespit edilemedi.
               </span>
               <button
                 type="button"
-                className="ota-btn-ghost small"
+                className="text-xs font-medium text-[var(--ota-gold)] hover:text-[var(--ota-gold-light)] transition-colors"
                 onClick={() => setShowAll(true)}
               >
                 Tüm Alanları Gör
@@ -123,23 +123,23 @@ export default function DocumentInfoTab({ result }: Props) {
             </div>
           ) : (
             <>
-              <div className="ota-info-grid muted">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
                 {notDetected.map((claim, idx) => (
-                  <div key={`${claim.field}-${idx}`} className="ota-info-row missing">
-                    <span className="ota-info-label">{claim.label}</span>
-                    <span className="ota-info-value muted">—</span>
-                    <div className="ota-info-badges">
-                      <StatusBadge variant="neutral" label="Tespit Edilemedi" small />
+                  <div key={`${claim.field}-${idx}`} className="flex flex-col bg-[var(--ota-surface-2)]/20 p-3 rounded-lg border border-[var(--ota-border)] opacity-60">
+                    <span className="text-[10px] uppercase tracking-wider text-[var(--ota-text-muted)] font-semibold mb-1">{claim.label}</span>
+                    <span className="text-[var(--ota-text-muted)] font-medium text-sm mb-2">—</span>
+                    <div className="mt-auto pt-2 border-t border-[var(--ota-border)]/50">
+                      <span className="text-[9px] uppercase tracking-widest text-[var(--ota-text-muted)]">Tespit Edilemedi</span>
                     </div>
                   </div>
                 ))}
               </div>
               <button
                 type="button"
-                className="ota-btn-ghost small"
+                className="text-xs font-medium text-[var(--ota-text-muted)] hover:text-[var(--ota-text)] transition-colors"
                 onClick={() => setShowAll(false)}
               >
-                Gizle
+                Gizle ▲
               </button>
             </>
           )}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icons } from "@/components/Icons";
+import { Copy, Info } from 'lucide-react';
 
 export default function TransliterationPanel({
   transliterationLines,
@@ -23,7 +24,7 @@ export default function TransliterationPanel({
       <div className="db-panel-header" onClick={() => setIsOpen(!isOpen)} style={{ cursor: 'pointer' }}>
         <h2 className="db-panel-title">
           <span className="db-panel-icon">Aa</span>
-          Latin Harfli Okunuş (İsteğe Bağlı) ⓘ
+          Latin Harfli Okunuş (İsteğe Bağlı) <Info className="w-4 h-4 ml-1 inline-block" />
         </h2>
         <div className="db-panel-actions">
            <button className="db-text-btn" onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}>
@@ -51,7 +52,7 @@ export default function TransliterationPanel({
              title="Okunuşu Kopyala"
              style={{ position: 'absolute', top: 16, right: 120 }}
            >
-             📋
+             <Copy className="w-4 h-4 text-current" />
            </button>
         </div>
       )}

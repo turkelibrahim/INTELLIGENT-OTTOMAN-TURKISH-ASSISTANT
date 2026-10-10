@@ -56,19 +56,26 @@ function NavGroup({ label, items }: { label: string; items: NavItem[] }) {
   );
 }
 
-export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
+export default function Sidebar({ isOpen, onClose, isFocusMode }: { isOpen?: boolean; onClose?: () => void; isFocusMode?: boolean }) {
   return (
-    <aside className={`ota-sidebar ${isOpen ? 'open' : ''}`} aria-label="Ana gezinme">
+    <aside className={`ota-sidebar ${isOpen ? 'open' : ''} ${isFocusMode ? 'collapsed' : ''}`} aria-label="Ana gezinme">
       {/* Logo */}
       <div className="ota-sidebar-logo justify-between">
         <div className="flex items-center gap-3">
           <div className="ota-logo-icon" aria-hidden="true">
             {Icons.tughra}
           </div>
-          <div className="ota-logo-text">
-            <span className="ota-logo-main">OSMANLICA</span>
-            <span className="ota-logo-sub">BELGE ASİSTANI</span>
-          </div>
+          {!isFocusMode && (
+            <div className="ota-logo-text flex flex-col justify-center">
+              <span className="text-[10px] font-bold tracking-[0.2em] text-[var(--ota-gold)] leading-tight">INTELLIGENT</span>
+              <span className="text-[13px] font-serif font-bold text-[var(--ota-text)] leading-tight">OTTOMAN TURKISH</span>
+              <span className="text-[8px] tracking-[0.3em] text-[var(--ota-text-muted)] leading-tight uppercase flex items-center justify-between w-full">
+                <span className="h-px bg-[var(--ota-border)] flex-1 mr-1"></span>
+                ASSISTANT
+                <span className="h-px bg-[var(--ota-border)] flex-1 ml-1"></span>
+              </span>
+            </div>
+          )}
         </div>
         {onClose && (
           <button className="lg:hidden text-[var(--ota-text-muted)] hover:text-[var(--ota-text)]" onClick={onClose}>
@@ -79,14 +86,46 @@ export default function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose
 
       {/* Navigation */}
       <nav className="ota-sidebar-nav custom-scrollbar">
-        <NavGroup label="ANA" items={NAV_MAIN} />
-        <NavGroup label="ARAÇLAR" items={NAV_TOOLS} />
+        {!isFocusMode && (
+          <>
+            <NavGroup label="ANA" items={NAV_MAIN} />
+            <NavGroup label="ARAÇLAR" items={NAV_TOOLS} />
+          </>
+        )}
+        {isFocusMode && (
+          <div className="px-2 py-4 space-y-2">
+            {NAV_MAIN.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="ota-nav-item-compact"
+                title={item.label}
+                aria-label={item.label}
+              >
+                <span className="ota-nav-icon">{item.icon}</span>
+              </a>
+            ))}
+            {NAV_TOOLS.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="ota-nav-item-compact"
+                title={item.label}
+                aria-label={item.label}
+              >
+                <span className="ota-nav-icon">{item.icon}</span>
+              </a>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* Footer pattern */}
-      <div className="ota-sidebar-footer" aria-hidden="true">
-        <div className="ota-sidebar-pattern" />
-      </div>
+      {!isFocusMode && (
+        <div className="ota-sidebar-footer" aria-hidden="true">
+          <div className="ota-sidebar-pattern" />
+        </div>
+      )}
     </aside>
   );
 }

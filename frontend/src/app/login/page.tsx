@@ -99,7 +99,7 @@ export default function LoginPage() {
             <span />
             Beni hatırla
           </label>
-          <Link href="/login" className="auth-muted-link" aria-disabled="true">
+          <Link href="/login" className="auth-forgot" aria-disabled="true">
             Şifremi Unuttum
           </Link>
         </div>

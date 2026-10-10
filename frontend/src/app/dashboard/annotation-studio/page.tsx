@@ -232,7 +232,7 @@ export default function AnnotationStudio() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--text-primary)]">
       <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 lg:h-screen">
-        <header className="flex flex-col gap-3 border-b border-[var(--border)] pb-3 md:flex-row md:items-end md:justify-between">
+        <header className="ota-page-header">
           <div>
             <h1 className="text-2xl font-semibold">Ground Truth Human Review</h1>
             <p className="text-sm text-[var(--text-secondary)]">AI destekli taslak - insan dogrulamasi gereklidir</p>

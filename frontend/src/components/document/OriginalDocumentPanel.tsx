@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import type { PageResponse, OCRPipelineLine } from "@/lib/api";
 import { Icons } from "@/components/Icons";
 import { AuthImage } from "./AuthImage"; // I'll extract AuthImage from page.tsx
+import { FileText } from 'lucide-react';
+
 
 const LINE_COLORS = [
   "#2ed8b6", "#4ea3ff", "#9a6cff", "#f4c84d", "#ff914d",
@@ -63,7 +65,7 @@ export default function OriginalDocumentPanel({
     <div className="db-panel">
       <div className="db-panel-header">
         <h2 className="db-panel-title">
-          <span className="db-panel-icon">📄</span>
+          <span className="db-panel-icon"><FileText className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
           Orijinal Belge
         </h2>
         <div className="db-panel-actions">

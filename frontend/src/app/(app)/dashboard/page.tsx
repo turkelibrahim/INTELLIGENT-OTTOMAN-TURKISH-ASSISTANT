@@ -19,6 +19,7 @@ import {
 import { useRouter } from "next/navigation";
 
 import { useRecentDocuments, useDocumentViewer, useDocumentAnalysis } from "./hooks";
+import { useFocusMode } from "@/components/dashboard/AppShell";
 
 
 
@@ -73,16 +74,19 @@ import DocumentInfoTab from "@/components/workspace/tabs/DocumentInfoTab";
 import EntitiesTab from "@/components/workspace/tabs/EntitiesTab";
 
 import HistoricalSidebar from "@/components/workspace/HistoricalSidebar";
+import HistoricalContextTab from "@/components/workspace/tabs/HistoricalContextTab";
 
 import SourcesTab from "@/components/workspace/tabs/SourcesTab";
 
 import TechnicalDetailsTab from "@/components/workspace/tabs/TechnicalDetailsTab";
 
 import ChatWidget from "@/components/workspace/ChatWidget";
+import { AlertTriangle, FileText, UploadCloud, Star, Archive } from 'lucide-react';
 
 
 
-// â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+// ── Constants ────────────────────────────────────────────────────────────────
 
 const ACCEPTED_EXTENSIONS = ["jpg", "jpeg", "png", "tiff", "tif", "pdf"];
 
@@ -92,21 +96,23 @@ const MAX_SIZE_MB = 50;
 
 
 
-type TabKey = "info" | "entities" | "historical" | "sources" | "technical";
+type TabKey = "info" | "entities" | "historical" | "sources" | "technical" | "preprocessing" | "model_comparison" | "ai_notes";
 
-const TABS: Array<{ key: TabKey; label: string }> = [
-
+const PRIMARY_TABS: Array<{ key: TabKey; label: string }> = [
   { key: "info",       label: "Belge Bilgileri" },
-
-  { key: "entities",   label: "Kişi ve Yerler" },
-
+  { key: "entities",   label: "Kişiler ve Yerler" },
   { key: "historical", label: "Tarihsel Bağlam" },
-
   { key: "sources",    label: "Kaynaklar" },
-
-  { key: "technical",  label: "Teknik Detay" },
-
 ];
+
+const ADVANCED_TABS: Array<{ key: TabKey; label: string }> = [
+  { key: "technical",  label: "Teknik" },
+  { key: "preprocessing", label: "Preprocessing" },
+  { key: "model_comparison", label: "Model Comparison" },
+  { key: "ai_notes",  label: "AI Notes" },
+];
+
+const ALL_TABS = [...PRIMARY_TABS, ...ADVANCED_TABS];
 
 
 
@@ -208,7 +214,7 @@ function HighlightedText({ text, entities }: { text: string; entities?: Record<s
 
 
 
-// â”€â”€ Dashboard Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Dashboard Page ──────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
 
@@ -245,17 +251,19 @@ export default function DashboardPage() {
   const { recentDocuments, isLoadingDocs, toggleFavorite, toggleArchive } = useRecentDocuments(hasDocument);
 
 
-
-  // Panel state
+// Panel state
 
   const [activeTab, setActiveTab] = useState<TabKey>("info");
 
   const [showLatin, setShowLatin] = useState(false);
+  const [showHistorical, setShowHistorical] = useState(true);
 
   const [activeLineId, setActiveLineId] = useState<string | null>(null);
 
   const [isDragging, setIsDragging] = useState(false);
 
+  const { isFocusMode, setIsFocusMode } = useFocusMode();
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
 
   // OCR edit state
@@ -612,7 +620,7 @@ export default function DashboardPage() {
 
     <div className="ota-dashboard">
 
-      {/* â”€â”€ Empty Welcome State (no document) â”€â”€ */}
+      {/* ── Empty Welcome State (no document) ── */}
 
       {!hasDocument && stage === "IDLE" && (
 
@@ -708,7 +716,7 @@ export default function DashboardPage() {
 
               />
 
-              <div className="ota-dropzone-icon" aria-hidden="true">📤</div>
+              <div className="ota-dropzone-icon" aria-hidden="true"><UploadCloud className="w-12 h-12 mx-auto text-[var(--ota-gold)] opacity-80" /></div>
 
               <strong className="ota-dropzone-label">Belge Yükle</strong>
 
@@ -736,7 +744,7 @@ export default function DashboardPage() {
           {recentDocuments.length > 0 && (
             <div className="mt-16 w-full max-w-4xl animate-in slide-in-from-bottom-4 fade-in duration-700">
               <h3 className="text-lg font-medium text-[var(--ota-text)] mb-6 flex items-center gap-2">
-                <span className="text-[var(--ota-gold)]">📄</span> Son Analiz Edilen Belgeleriniz
+                <span className="text-[var(--ota-gold)]"><FileText className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span> Son Analiz Edilen Belgeleriniz
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {recentDocuments.map((doc) => (
@@ -746,21 +754,21 @@ export default function DashboardPage() {
                     onClick={() => handleLoadRecent(doc)}
                   >
                     <div className="flex items-start justify-between">
-                      <span className="text-xl group-hover:scale-110 transition-transform origin-bottom-left text-[var(--ota-text)]">📄</span>
+                      <span className="text-xl group-hover:scale-110 transition-transform origin-bottom-left text-[var(--ota-text)]"><FileText className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
                       <div className="flex items-center gap-2">
                         <button 
                           onClick={(e) => { e.stopPropagation(); toggleFavorite(doc.id); }}
                           title="Favorilere Ekle"
                           className={`p-1.5 rounded-md transition-colors ${doc.is_favorite ? 'text-[var(--ota-gold)] bg-[var(--ota-gold-dim)]' : 'text-[var(--ota-text-muted)] hover:text-[var(--ota-gold)] hover:bg-[var(--ota-gold-dim)]'}`}
                         >
-                          {doc.is_favorite ? '★' : '☆'}
+                          <Star className={`w-4 h-4 ${doc.is_favorite ? 'fill-current' : ''}`} />
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); toggleArchive(doc.id); }}
                           title="Arşive Kaldır"
                           className="p-1.5 rounded-md text-[var(--ota-text-muted)] hover:text-[var(--ota-ruby)] hover:bg-[var(--ota-ruby)]/10 transition-colors"
                         >
-                          📦
+                          <Archive className="w-4 h-4" />
                         </button>
                         <span className="text-xs px-2 py-1 bg-[var(--ota-gold-dim)] text-[var(--ota-gold)] rounded-md ml-2 border border-[var(--ota-border)]">
                           {new Date(doc.created_at).toLocaleDateString("tr-TR")}
@@ -787,7 +795,7 @@ export default function DashboardPage() {
 
 
 
-      {/* â”€â”€ Upload form (file selected, not yet analyzed) â”€â”€ */}
+      {/* ── Upload form (file selected, not yet analyzed) ── */}
 
       {hasDocument && !isComplete && !isProcessing && stage !== "ERROR" && (
 
@@ -795,7 +803,7 @@ export default function DashboardPage() {
 
           <div className="ota-upload-file-info">
 
-            <span className="ota-file-icon" aria-hidden="true">ðŸ“„</span>
+            <span className="ota-file-icon" aria-hidden="true"><FileText className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
 
             <span className="ota-file-name">{file?.name || "Belge yüklendi"}</span>
 
@@ -937,7 +945,7 @@ export default function DashboardPage() {
 
           <div className="ota-error-content">
 
-            <span className="ota-error-icon">⚠️</span>
+            <span className="ota-error-icon"><AlertTriangle className="w-5 h-5 inline-block mr-1 align-text-bottom" /></span>
 
             <div>
 
@@ -977,11 +985,11 @@ export default function DashboardPage() {
 
 
 
-      {/* â”€â”€ Main Workspace (3 panels + Latin + Tabs) â”€â”€ */}
+      {/* ── Main Workspace (3 panels + Latin + Tabs) ── */}
 
       {isComplete && result && (
 
-        <div className="ota-workspace">
+        <div className={`ota-workspace ${isFocusMode ? 'focus-mode-active' : ''}`}>
 
           {/* Document title + actions row */}
 
@@ -1088,24 +1096,28 @@ export default function DashboardPage() {
                 onClick={resetDocument}
 
               >
-
-                Yeni Belge
+Yeni Belge
 
               </button>
 
+              <button type="button" className={`ota-btn-ghost small ${isFocusMode ? 'bg-[var(--ota-gold)] text-[var(--ota-obsidian)]' : ''}`} onClick={() => setIsFocusMode(!isFocusMode)}>
+                {isFocusMode ? "Odak Modu Açık" : "Odak Modu"}
+              </button>
+              <button type="button" className={`ota-btn-ghost small ${!showHistorical ? 'bg-[var(--ota-gold)] text-[var(--ota-obsidian)]' : ''}`} onClick={() => setShowHistorical(!showHistorical)}>
+                {showHistorical ? "Analizi Gizle" : "Analizi Aç"}
+              </button>
             </div>
 
           </div>
 
 
+          
+          
 
-          {/* â”€â”€ Three Panel Grid & Sidebar Wrapper â”€â”€ */}
+          {/* ── Three Panel Grid & Sidebar Wrapper ── */}
 
-          <div className="flex gap-4 items-start w-full">
-
-            <div className="flex-1 min-w-0 flex flex-col gap-6">
-
-              <div className="ota-three-panel-grid">
+          <div className="flex-1 min-w-0 flex flex-col gap-6 w-full">
+              <div className={`ota-workspace-grid ${!showHistorical ? "hide-sidebar" : ""}`}>
 
             {/* Panel 1: Original Document */}
 
@@ -1755,11 +1767,11 @@ export default function DashboardPage() {
 
             </article>
 
-          </div>
+{showHistorical && <HistoricalSidebar result={result} onGoToOcr={() => setActiveTab("technical")} />}
 
+</div>
 
-
-          {/* â”€â”€ Latin Transliteration (collapsible) â”€â”€ */}
+{/* ── Latin Transliteration (collapsible) ── */}
 
           <div className="ota-latin-section">
 
@@ -1911,52 +1923,56 @@ export default function DashboardPage() {
 
 
 
-          {/* â”€â”€ Document Tabs â”€â”€ */}
+          {/* ── Document Tabs ── */}
 
           <div className="ota-doc-tabs-section">
 
             <div className="ota-tabs-nav" role="tablist" aria-label="Belge bilgi sekmeleri">
 
-              {TABS.map((tab) => (
-
-                <button
-
-                  key={tab.key}
-
-                  type="button"
-
-                  role="tab"
-
-                  className={`ota-tab${activeTab === tab.key ? " active" : ""}`}
-
-                  aria-selected={activeTab === tab.key}
-
-                  aria-controls={`tab-panel-${tab.key}`}
-
-                  onClick={() => setActiveTab(tab.key)}
-
-                >
-
-                  {tab.label}
-
-                </button>
-
-              ))}
-
+              <div className="flex items-center gap-6">
+                <div className="flex gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ota-text-muted)] self-center mr-2">Temel</span>
+                  {PRIMARY_TABS.map((tab) => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      className={`ota-tab${activeTab === tab.key ? " active" : ""}`}
+                      aria-selected={activeTab === tab.key}
+                      aria-controls={`tab-panel-${tab.key}`}
+                      onClick={() => setActiveTab(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="w-px h-4 bg-[var(--glass-border)] mx-2" />
+                <div className="flex gap-2">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ota-text-muted)] self-center mr-2">İleri</span>
+                  {ADVANCED_TABS.map((tab) => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      className={`ota-tab${activeTab === tab.key ? " active" : ""}`}
+                      aria-selected={activeTab === tab.key}
+                      aria-controls={`tab-panel-${tab.key}`}
+                      onClick={() => setActiveTab(tab.key)}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-
-
 
             <div
 
               className="ota-tab-content"
 
               id={`tab-panel-${activeTab}`}
-
               role="tabpanel"
-
-              aria-label={TABS.find((t) => t.key === activeTab)?.label}
-
+              aria-label={ALL_TABS.find((t) => t.key === activeTab)?.label}
             >
 
               {activeTab === "info" && (
@@ -1976,26 +1992,27 @@ export default function DashboardPage() {
 
 
               {activeTab === "sources" && <SourcesTab result={result} />}
-
               {activeTab === "technical" && <TechnicalDetailsTab result={result} />}
-
+              {activeTab === "historical" && (
+                <div className="w-full max-w-[900px] mx-auto">
+                  <HistoricalContextTab result={result} onGoToOcr={() => setActiveTab("technical")} />
+                </div>
+              )}
+              {activeTab === "preprocessing" && (
+                <EmptyState title="Preprocessing Data" description="Görüntü iyileştirme adımları ve filtre logları burada listelenecek." compact />
+              )}
+              {activeTab === "model_comparison" && (
+                <EmptyState title="Model Karşılaştırması" description="Yerel ve NVIDIA OCR modellerinin metin karşılaştırması." compact />
+              )}
+              {activeTab === "ai_notes" && (
+                <EmptyState title="Yapay Zeka Notları" description="Modelin çeviri ve analiz esnasında çıkardığı notlar." compact />
+              )}
             </div>
-
           </div>
-
         </div>
-
-        
-
-        <HistoricalSidebar result={result} onGoToOcr={() => setActiveTab("technical")} />
-
       </div>
-
-    </div>
-
-  )}
-
-  <ChatWidget documentId={result?.document?.document_id || null} />
+    )}
+  <ChatWidget documentId={result?.document?.document_id || null} isOpen={isChatOpen} onToggle={setIsChatOpen} />
 
 </div>
 

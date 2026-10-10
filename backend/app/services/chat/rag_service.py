@@ -143,18 +143,21 @@ class RAGService:
         self.db.flush()
         
         # Create citation for the first relevant chunk
-        top_chunk = chunks[0]
-        citation = Citation(
-            message_id=assistant_msg.id,
-            document_id=session.document_id,
-            page_id=top_chunk.get("page_id"),
-            text_version_id=top_chunk.get("id") if top_chunk["type"] == "version" else None,
-            quote=top_chunk['text'],
-            locator=f"Satır: {top_chunk.get('line_no')}" if top_chunk["type"] == "ocr" else "Versiyon Metni"
-        )
-        self.db.add(citation)
-        self.db.commit()
+        citations = []
+        if chunks:
+            top_chunk = chunks[0]
+            citation = Citation(
+                message_id=assistant_msg.id,
+                document_id=session.document_id,
+                page_id=top_chunk.get("page_id"),
+                text_version_id=top_chunk.get("id") if top_chunk["type"] == "version" else None,
+                quote=top_chunk['text'],
+                locator=f"Satır: {top_chunk.get('line_no')}" if top_chunk["type"] == "ocr" else "Versiyon Metni"
+            )
+            self.db.add(citation)
+            self.db.commit()
+            self.db.refresh(citation)
+            citations.append(citation)
         
         self.db.refresh(assistant_msg)
-        self.db.refresh(citation)
-        return {"message": assistant_msg, "citations": [citation]}
+        return {"message": assistant_msg, "citations": citations}

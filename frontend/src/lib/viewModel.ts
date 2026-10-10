@@ -63,6 +63,19 @@ export function mapFieldLabel(field: string): string {
   return FIELD_LABELS[field] ?? field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 }
 
+export function translateInternalValue(val: string | undefined | null): string {
+  if (!val) return "Tespit Edilemedi";
+  const lower = val.toLowerCase().trim();
+  if (lower === "not_assessed") return "Değerlendirilemedi";
+  if (lower === "not_detected" || lower === "none" || lower === "n/a") return "Tespit Edilemedi";
+  if (lower === "unknown" || lower === "uncertain") return "Belirsiz";
+  if (lower === "possible_period") return "Tahmini Dönem";
+  if (lower === "possible_author") return "Muhtemel Yazar";
+  if (lower === "possible_sultan_period") return "Tahmini Padişah Dönemi";
+  if (lower === "possible_institution") return "Muhtemel Kurum";
+  return val;
+}
+
 // ── Entity Type Labels ──────────────────────────────────────────────────────
 
 export const ENTITY_TYPE_LABELS: Record<string, string> = {

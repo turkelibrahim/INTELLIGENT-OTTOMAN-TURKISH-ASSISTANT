@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='utf-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2019-07-15">
+    <Metadata>
+        <Creator>Pilot Recovery</Creator>
+        <Created>2026-08-04T21:36:33.340826</Created>
+    </Metadata>
+    <Page imageFilename="/mnt/c/Users/ibrah/OneDrive/Masaüstü/INTELLIGENT OTTOMAN TURKISH ASSISTANT/evidence/ocr_quality_real/input/images/page_003.png" imageWidth="2550" imageHeight="3300">
+        <TextRegion id="region_0">
+            <TextLine id="line_0">
+                <Coords points="600,482 2350,482 2350,571 600,571" />
+                <Baseline points="600,571 2350,571" />
+                <TextEquiv><Unicode>روم ولايتنى اكا اصمرلدم نجه بلدوكى بر دكين اچسون انك</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_1">
+                <Coords points="600,585 2350,585 2350,668 600,668" />
+                <Baseline points="600,668 2350,668" />
+                <TextEquiv><Unicode>اولسون ديدى سلطان علاءالدينك تاتار ايله جنگى وار ايدى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_2">
+                <Coords points="600,679 2350,679 2350,765 600,765" />
+                <Baseline points="600,765 2350,765" />
+                <TextEquiv><Unicode>بو طرفدن چغتاى چرسى بلوردى اوزرنه كلوب تاتارله جنگه</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_3">
+                <Coords points="600,785 2350,785 2350,862 600,862" />
+                <Baseline points="600,862 2350,862" />
+                <TextEquiv><Unicode>مشغول اولدى عاقبت بارشوب تاتار دونجك سلطان علاءالدين</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_4">
+                <Coords points="600,877 2350,877 2350,960 600,960" />
+                <Baseline points="600,960 2350,960" />
+                <TextEquiv><Unicode>وفات ايتدى اوغلى سلطان غياث‌الدين تخته كچوب يرنه پادشاه</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_5">
+                <Coords points="600,975 2350,975 2350,1058 600,1058" />
+                <Baseline points="600,1058 2350,1058" />
+                <TextEquiv><Unicode>اولدى مگر اونك زماننده بر شيخ وار ايدى بابا الياس درلردى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_6">
+                <Coords points="600,1070 2350,1070 2350,1150 600,1150" />
+                <Baseline points="600,1150 2350,1150" />
+                <TextEquiv><Unicode>سلطان علاءالدين زماننده كلوب اماسيه يورنده چات ادلو</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_7">
+                <Coords points="600,1161 2350,1161 2350,1248 600,1248" />
+                <Baseline points="600,1248 2350,1248" />
+                <TextEquiv><Unicode>قصبه‌ده وطن طوتمشدى عجم ولايتندن كلمشدى حضرت مولانا</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_8">
+                <Coords points="600,1268 2350,1268 2350,1352 600,1352" />
+                <Baseline points="600,1352 2350,1352" />
+                <TextEquiv><Unicode>جلال‌الدين قونيه‌ده اولردى اول زمان اولولر و شيخلر</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_9">
+                <Coords points="600,1368 2350,1368 2350,1450 600,1450" />
+                <Baseline points="600,1450 2350,1450" />
+                <TextEquiv><Unicode>چوغدى سلطان علاءالدين وفات ايدوب اوغلى غياث‌الدين</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_10">
+                <Coords points="600,1470 2350,1470 2350,1548 600,1548" />
+                <Baseline points="600,1548 2350,1548" />
+                <TextEquiv><Unicode>پادشاه اوليجق ظلمه باشلدى بر سبب اوجندن بابا الياسدن</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_11">
+                <Coords points="600,1562 2350,1562 2350,1642 600,1642" />
+                <Baseline points="600,1642 2350,1642" />
+                <TextEquiv><Unicode>خوف ايدوب لشكر گوندردى بابايلرى قردى بر گجه سلطان</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_12">
+                <Coords points="600,1662 2350,1662 2350,1742 600,1742" />
+                <Baseline points="600,1742 2350,1742" />
+                <TextEquiv><Unicode>غياث‌الدين قوللرى قتل ايدوب اوغلى و قزى قالدى مملكت</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_13">
+                <Coords points="600,1755 2350,1755 2350,1839 600,1839" />
+                <Baseline points="600,1839 2350,1839" />
+                <TextEquiv><Unicode>خالى قالدى بابايلردن مخلص پاشا كلوب پادشاه اولدى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_14">
+                <Coords points="600,1853 2350,1853 2350,1936 600,1936" />
+                <Baseline points="600,1936 2350,1936" />
+                <TextEquiv><Unicode>بابايلرك انتقامك الوب بابايلر قزلىرى قردى قلچدن كجوردى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_15">
+                <Coords points="600,1945 2350,1945 2350,2031 600,2031" />
+                <Baseline points="600,2031 2350,2031" />
+                <TextEquiv><Unicode>قرق گون و بعضلر ايدر التى اى بكلك ايلدى اندن صكره</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_16">
+                <Coords points="600,2044 2350,2044 2350,2136 600,2136" />
+                <Baseline points="600,2136 2350,2136" />
+                <TextEquiv><Unicode>كندونك خليفه‌لرندن كور قاضى درلردى بابا زماننده ايچ ايله</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_17">
+                <Coords points="600,2146 2350,2146 2350,2229 600,2229" />
+                <Baseline points="600,2229 2350,2229" />
+                <TextEquiv><Unicode>خليفه ايدى مگر انوك بر اوغلى قالمشدى اونه قرمان درلردى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_18">
+                <Coords points="600,2243 2350,2243 2350,2328 600,2328" />
+                <Baseline points="600,2328 2350,2328" />
+                <TextEquiv><Unicode>بش ياشنده ايدى مخلص پاشا قرمانى تخت كچوردى پادشاه</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_19">
+                <Coords points="600,2346 2350,2346 2350,2429 600,2429" />
+                <Baseline points="600,2429 2350,2429" />
+                <TextEquiv><Unicode>ايلدى بونك نسلى عالمى دونه ددى قرمان ولايتن اكا ويردى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_20">
+                <Coords points="600,2442 2350,2442 2350,2527 600,2527" />
+                <Baseline points="600,2527 2350,2527" />
+                <TextEquiv><Unicode>قرمان مملكتى ديدكلرنه سبب بودر برى ينه عثمان غازى قصه‌سنه</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_21">
+                <Coords points="600,2540 2350,2540 2350,2626 600,2626" />
+                <Baseline points="600,2626 2350,2626" />
+                <TextEquiv><Unicode>كله‌لوم عثمان غازينك شيخ ادبالى قزى رابعه خاتوندن بر</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_22">
+                <Coords points="600,2636 2350,2636 2350,2719 600,2719" />
+                <Baseline points="600,2719 2350,2719" />
+                <TextEquiv><Unicode>اوغلى اولدى ادنى اورخان قودى هجرتك التيوز سكسن</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_23">
+                <Coords points="600,2725 2350,2725 2350,2819 600,2819" />
+                <Baseline points="600,2819 2350,2819" />
+                <TextEquiv><Unicode>التى‌سنده عثمان غازى كلوب بيله‌جكى و اينه كولى فتح ايتدى</Unicode></TextEquiv>
+            </TextLine>
+            <TextLine id="line_24">
+                <Coords points="600,2829 2350,2829 2350,2910 600,2910" />
+                <Baseline points="600,2910 2350,2910" />
+                <TextEquiv><Unicode>هجرتك التي يوز سكسن يده‌ده قرجه شهرى الوب اند بر ادم</Unicode></TextEquiv>
+            </TextLine>
+        </TextRegion>
+    </Page>
+</PcGts>

@@ -300,3 +300,11 @@ tags: [bootstrap, recover, index, release-gate]
 - [[Task_Queue]] - partial - `RECOVERY_REAL_DOCUMENT_REVALIDATION_AND_OCR_REPAIR` review durumunda; dedicated claim UI eksigi kaldi.
 - [[Source_Map]] - verified - Real API/browser/preprocessing A-B/test kanitlari `evidence/recovery_real_document_revalidation/` altina eklendi.
 - [[Latest_Handoff]] - partial - Runtime link, degisen dosyalar, testler ve kalan riskler guncellendi.
+
+## 2026-10-05 Smart Hybrid AI Architecture
+- [[Smart_Hybrid_AI_Architecture]] - verified - Local-first pipeline with NVIDIA DeepSeek batch verification for low-confidence regions.
+- [[OCR_Service]] - verified - Smart Router injected into pipeline to selective-verify both transliteration and modern translation.
+- [[Document_Workspace]] - verified - Frontend dashboard modified to show Verification Status (NVIDIA VERIFIED, LOCAL AI, etc.) and AI Route without breaking existing layout.
+- [[Current_State]] - verified - SMART_HYBRID_AI_ARCHITECTURE_PASS kaydedildi.
+- [[Source_Map]] - verified - Backend config, router, cache, resilience, nvidia_client, pipeline injection and frontend dashboard changes linked.
+- [[Global_Testing_Discipline]]: Projede bundan sonraki tüm kodlama süreçlerinde uygulanacak zorunlu test ve regresyon standardı.
